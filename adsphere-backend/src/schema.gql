@@ -1,0 +1,77 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input ContactAdInput {
+  adId: ID!
+  content: String
+  offer: CreateOfferInput
+  senderId: ID!
+}
+
+type Conversation {
+  adId: ID!
+  adImage: String
+  adTitle: String!
+  buyerId: ID!
+  buyerName: String!
+  lastMessage: String!
+  lastMessageDate: DateTime!
+  sellerId: ID!
+  sellerName: String!
+}
+
+input CreateMessageInput {
+  adId: ID!
+  content: String
+  receiverId: ID!
+  senderId: ID!
+}
+
+input CreateOfferInput {
+  amount: Float
+  exchangeAdId: ID
+  type: OfferType!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Message {
+  _id: ID!
+  adId: ID!
+  content: String!
+  createdAt: DateTime!
+  offer: Offer
+  receiverId: ID!
+  senderId: ID!
+}
+
+type Mutation {
+  contactSellerForAd(input: ContactAdInput!): Boolean!
+  sendMessage(input: CreateMessageInput!): Boolean!
+}
+
+type Offer {
+  amount: Float
+  exchangeAdId: ID
+  type: String!
+}
+
+"""Type of offer for a message"""
+enum OfferType {
+  AUCTION
+  EXCHANGE
+  NEGOTIABLE
+}
+
+type Query {
+  conversations(userId: ID!): [Conversation!]!
+  messages(adId: ID!, buyerId: ID!, sellerId: ID!, userId: ID!): [Message!]!
+}
+
+type Subscription {
+  messageSent(adId: ID!): Message!
+}
