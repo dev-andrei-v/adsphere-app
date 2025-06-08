@@ -1,0 +1,22 @@
+<div class="flex items-center justify-center min-h-screen">
+  <nz-card class="w-full sm:w-96 p-8 shadow-lg">
+   <div class="mb-5">
+     <button nz-button nzType="default" nzBlock (click)="handleGoogleAuth()">
+       <i nz-icon nzType="google"></i>
+       <span>Autentificare cu Google</span>
+     </button>
+   </div>
+    <nz-divider nzText="SAU"></nz-divider>
+<!--    <p class="text-center text-gray-500">SAU</p>-->
+
+    <nz-tabset [nzSelectedIndex]="selectedTabIndex" (nzSelectedIndexChange)="onTabChange($event)" [nzCentered]="true"
+               class="mb-6 mt-4">
+      <nz-tab nzTitle="INTRĂ ÎN CONT">
+        <app-login-page></app-login-page>
+      </nz-tab>
+      <nz-tab nzTitle="CREEAZĂ UN CONT">
+        <app-register-page></app-register-page>
+      </nz-tab>
+    </nz-tabset>
+  </nz-card>
+</div>

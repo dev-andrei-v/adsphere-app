@@ -1,0 +1,13 @@
+<nz-layout>
+  @if (showMainLayout) {
+    <app-nav-bar></app-nav-bar>
+  }
+
+  <div class="flex-grow">
+    <router-outlet></router-outlet>
+  </div>
+
+  @if (showMainLayout) {
+    <app-footer></app-footer>
+  }
+</nz-layout>

@@ -1,0 +1,68 @@
+<nz-card class="mb-6">
+  <div class="p-4">
+    <!-- Preț -->
+    <p class="text-green-600 text-3xl font-bold mb-2">{{ price }} {{ currency }}</p>
+
+    <!-- Chip / Tip tranzacție -->
+    <div class="flex items-center gap-2 mb-4">
+      <nz-tag [nzColor]="transactionTypeDetails().tagColor">
+        <span class="text-xl">
+          {{ transactionTypeDetails().label }}
+        </span>
+      </nz-tag>
+    </div>
+
+    <!-- Butoane -->
+    <div class="flex flex-col gap-2">
+      @if (isUserAuthenticated) {
+        @if (isSellerTheLoggedInUser) {
+          <div class="h-6 flex items-center justify-center"
+               nz-tooltip
+               nzTooltipTitle="Nu te poți contacta pe tine însuți">
+            <button
+              nz-button
+              nzType="primary"
+              class="w-full"
+              [disabled]="isSellerTheLoggedInUser">
+              <nz-icon nzType="message" class="mr-2"></nz-icon>
+              Contactează vânzătorul
+            </button>
+          </div>
+        } @else {
+          <button
+            nz-button
+            nzType="primary"
+            class="h-6 flex items-center justify-center"
+            (click)="handleToggleModal()"
+            [disabled]="isSellerTheLoggedInUser">
+            <nz-icon nzType="message" class="mr-2"></nz-icon>
+            Contactează vânzătorul
+          </button>
+        }
+      } @else {
+        <div class="h-6 flex items-center justify-center"
+             nz-tooltip
+             nzTooltipTitle="Trebuie să fii autentificat pentru a putea contacta vânzătorul">
+          <button
+            nz-button
+            nzType="primary"
+            class="w-full"
+            [disabled]="true"
+          >
+            <nz-icon nzType="message" class="mr-2"></nz-icon>
+            Contactează vânzătorul
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</nz-card>
+
+<app-contact-seller-modal [adId]="adId"
+                          [currency]="ad.currency"
+                          [isVisible]="showModal()"
+                          [transactionType]="transactionType"
+                          (closed)="handleToggleModal()"
+                          (submitted)="handleModalSubmit()"
+                          (hide)="handleModalHide()"
+/>

@@ -1,0 +1,18 @@
+<nz-card
+  class="text-center !p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+
+  <!-- Circular image skeleton -->
+  <div class="p-4 mb-5 rounded-full mx-auto">
+    <nz-skeleton-element
+      nzType="avatar"
+      nzShape="square"
+       nzActive="true"
+      nzSize="large"/>
+  </div>
+
+  <!-- Category name skeleton -->
+  <div class="flex justify-center">
+    <nz-skeleton [nzActive]="false"></nz-skeleton>
+  </div>
+
+</nz-card>

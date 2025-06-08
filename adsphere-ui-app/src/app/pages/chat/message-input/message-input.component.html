@@ -1,0 +1,12 @@
+<div class="p-4 flex gap-2">
+  <input nz-input
+         placeholder="Scrie mesaj"
+         class="flex-1"
+         [ngModel]="model"
+         (ngModelChange)="onInput($event)"
+         (keyup.enter)="onSend()"
+  />
+  <button nz-button nzType="primary"
+          (click)="onSend()">Trimite
+  </button>
+</div>

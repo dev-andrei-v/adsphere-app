@@ -1,0 +1,44 @@
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+  <div class="mb-4">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="12" nzFor="name">Nume</nz-form-label>
+      <nz-form-control [nzSpan]="24">
+        <input nz-input formControlName="name" id="name" placeholder="Introduceți nume" nzSize="large"/>
+      </nz-form-control>
+    </nz-form-item>
+  </div>
+
+  <div class="mb-4">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="12" nzFor="accountType">Tip cont</nz-form-label>
+      <nz-form-control [nzSpan]="24">
+        <nz-select formControlName="accountType" id="accountType" nzSize="large">
+          <nz-option *ngFor="let type of accountTypes" [nzValue]="type.value" [nzLabel]="type.label"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+  </div>
+
+  <div class="mb-4">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="24" nzFor="email">Email</nz-form-label>
+      <nz-form-control [nzSpan]="24">
+        <input nz-input formControlName="email" id="email" placeholder="Introduceți adresa de email" nzSize="large"/>
+      </nz-form-control>
+    </nz-form-item>
+  </div>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="24" nzFor="password">Parolă</nz-form-label>
+    <nz-form-control [nzSpan]="24">
+      <input nz-input formControlName="password" type="password" id="password" placeholder="Introduceți parola" nzSize="large"/>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="flex justify-center mt-6">
+    <button nz-button nzType="primary" nzBlock type="submit">
+      <i nz-icon nzType="user-add"></i>
+      <span>Înregistrare</span>
+    </button>
+  </div>
+</form>

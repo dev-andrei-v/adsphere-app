@@ -1,0 +1,39 @@
+<nz-card class="mb-6">
+  <div nz-card-title class="text-lg font-bold">Informații vânzător</div>
+
+  <div class="flex flex-col items-center text-center pt-4">
+    <!-- Avatar -->
+    <div class="bg-blue-100 text-blue-800 rounded-full h-16 w-16 flex items-center justify-center font-bold text-lg mb-2">
+      {{sellerInitials}}
+    </div>
+
+    <!-- Nume & Data -->
+    <p class="text-xl">{{seller.name}}</p>
+    <div class="mb-2">
+      <nz-tag>
+      <span class="text-xl">
+        {{sellerType}}
+      </span>
+      </nz-tag>
+    </div>
+    <p class="text-sm text-gray-500">Membru din {{seller.createdAt | date}}</p>
+
+    <!-- Rating -->
+    @if(rating > 0) {
+      <nz-rate [ngModel]="rating" nzDisabled class="mb-2"></nz-rate>
+    } @else {
+      <p class="text-sm text-gray-400">Acest membru nu are evaluări.</p>
+    }
+
+@if(isThisSellerAd){
+  <button nz-button nzType="primary" class="mt-2" (click)="navigateToEditAd()">
+    <nz-icon nzType="edit" class="mr-2"></nz-icon> Editează anunțul
+  </button>
+}
+
+    <!-- Buton profil -->
+<!--    <button nz-button nzType="default" class="flex items-center justify-center">-->
+<!--      <nz-icon nzType="user" class="mr-2"></nz-icon> Vezi profilul-->
+<!--    </button>-->
+  </div>
+</nz-card>

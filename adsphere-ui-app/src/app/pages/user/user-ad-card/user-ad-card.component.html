@@ -1,0 +1,65 @@
+<nz-card class="shadow-sm" [nzBodyStyle]="{ padding: '16px' }" [nzHoverable]="true"
+(click)="navigateToAd(userAd.slug)">
+  <div class="flex items-start gap-4">
+    <!-- Imaginea -->
+    <div class="w-40 h-28 flex-shrink-0">
+      <img
+        [src]="firstImage"
+        alt="Imagine anunț"
+        class="w-full h-full object-cover rounded-md"
+      />
+    </div>
+
+    <!-- Conținut -->
+    <div class="flex-1">
+      <h3 class="text-lg font-semibold mb-1">{{ userAd.title }}</h3>
+      <div class="text-sm text-gray-500">
+        <span><strong>Preț:</strong> {{ userAd.price }} {{ userAd.currency }}</span> ·
+        <span><strong>Postat la:</strong> {{ userAd.createdAt | date }}</span>
+      </div>
+      <div class="text-sm text-gray-500 mt-2">
+        <span><strong>Categorie:</strong> {{ userAd.categoryId?.name }}</span>
+      </div>
+      <div class="mt-1">
+        @switch (userAd.status) {
+          @case ('approved') {
+            <nz-tag nzColor="green">ACTIV</nz-tag>
+          }
+          @case ('pending') {
+            <nz-tag nzColor="orange">ÎN AȘTEPTARE</nz-tag>
+          }
+          @case ('archived') {
+            <nz-tag nzColor="gold">ARHIVAT</nz-tag>
+          }
+          @case ('deleted') {
+            <nz-tag nzColor="red">ȘTERS</nz-tag>
+          }
+          @case ('rejected') {
+            <nz-tag nzColor="volcano">RESPINS</nz-tag>
+          }
+          @default {
+            <nz-tag nzColor="default">NECUNOSCUT</nz-tag>
+          }
+        }
+
+      </div>
+    </div>
+
+    <!-- Acțiuni -->
+    <div class="flex flex-row gap-2 items-end">
+      <button nz-button nzType="default" nzSize="default" (click)="editAd(); $event.stopPropagation()">
+        <i nz-icon nzType="edit" class="mr-1"></i> Editează
+      </button>
+      @if(isDezactiveazaDisabled){
+        <button nz-button nzType="dashed" nz nzSize="default" (click)="reactivateAd(); $event.stopPropagation()">
+          <i nz-icon nzType="undo" class="mr-1"></i> Reactivează
+        </button>
+      } @else if(isAdActive) {
+        <button nz-button nzType="default" nzDanger nzSize="default" (click)="deactivateAd(); $event.stopPropagation()"
+                [disabled]="isDezactiveazaDisabled">
+          <i nz-icon nzType="delete" class="mr-1"></i> Dezactivează
+        </button>
+      }
+    </div>
+  </div>
+</nz-card>

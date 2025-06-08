@@ -1,0 +1,15 @@
+<nz-result nzStatus="success"
+           [nzTitle]="messageTitle"
+           [nzSubTitle]="messageSubTitle">
+  <div nz-result-extra class="flex justify-center mt-5">
+    @if(previewAdId) {
+    <span class="mr-2">
+      <button nz-button nzType="dashed" [routerLink]="['/ad', previewAdId]">Anunțul tău</button>
+    </span>
+    }
+    <span class="mr-2">
+      <button nz-button nzType="primary" routerLink="/user/ads">Vezi anunțurile tale</button>
+    </span>
+    <button nz-button nzType="default" routerLink="/ad/post">Publică un alt anunț</button>
+  </div>
+</nz-result>

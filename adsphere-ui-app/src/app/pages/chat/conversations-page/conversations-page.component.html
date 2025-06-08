@@ -1,0 +1,40 @@
+<div class="container mx-auto py-8 px-4">
+  <div class="flex h-[80vh] overflow-hidden bg-white shadow">
+    <app-conversations-sidebar
+      [conversations]="conversations()"
+      [selectedConversation]="selectedConversation()"
+      [isLoading]="isConversationLoading()"
+      (conversationSelected)="selectConversation($event)">
+    </app-conversations-sidebar>
+
+    @if (selectedConversation()) {
+      <div class="flex-1 flex flex-col">
+        <div class="px-6 py-4 text-lg font-semibold bg-gray-100">
+          <a [href]="adUrl"
+             class="text-blue-600 hover:underline">
+          {{ selectedConversation()?.adTitle }}
+          </a>
+        </div>
+        <div class="flex-1 overflow-auto p-6 bg-gray-50">
+          <app-conversation-messages
+            [messages]="messages()"
+            [messageSender]="messageSender.bind(this)">
+          </app-conversation-messages>
+        </div>
+
+          <app-message-input
+            [model]="newMessage()"
+            (modelChange)="newMessage.set($event)"
+            (send)="sendMessage()">
+          </app-message-input>
+
+      </div>
+    } @else {
+      @if (conversations().length > 0) {
+        <div class="flex-1 flex items-center justify-center text-gray-400">
+          Selectează o conversație pentru a începe
+        </div>
+      }
+    }
+  </div>
+</div>

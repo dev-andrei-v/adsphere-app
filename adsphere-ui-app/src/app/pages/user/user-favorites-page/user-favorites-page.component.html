@@ -1,0 +1,21 @@
+<div class="container mx-auto py-8 px-4">
+  <div class="text-2xl font-bold">
+    Anunțurile mele favorite
+  </div>
+
+  @if (userAds().length === 0) {
+    <div class="text-center text-gray-500 py-8">
+      <nz-icon nzType="frown" nzTheme="outline" class="text-4xl mb-4"/>
+      <p class="text-lg font-semibold">Niciun anunț favorit</p>
+      <p class="mt-2 text-sm text-gray-500">
+        Explorează anunțuri și salvează-le ca favorite pentru a le vedea aici. <br/>
+        Pe baza lor primești sugestii personalizate.
+      </p>
+    </div>
+  }
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    @for (ad of userAds(); track ad._id) {
+      <app-ad-card [ad]="ad" (favoriteChange)="handleFavoriteChange($event)"/>
+    }
+  </div>
+</div>

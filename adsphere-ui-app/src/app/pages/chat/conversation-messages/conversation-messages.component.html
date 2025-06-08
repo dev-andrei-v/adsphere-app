@@ -1,0 +1,55 @@
+<div class=" flex flex-col gap-3">
+@for(msg of messages; track $index) {
+  <div
+    class="w-fit max-w-[70%] px-4 py-2 rounded-2xl shadow-sm"
+    [ngClass]="{
+        'bg-blue-100 self-start': messageSender(msg) !== 'me',
+        'bg-gray-200 self-end': messageSender(msg) === 'me'
+      }"
+  >
+    @if(msg?.offer) {
+    <div>
+      @switch(msg?.offer?.type) {
+        @case('negotiable') {
+          <div class="text-green-600 font-semibold">Propunere ofertă - negociabil</div>
+          <div class="text-sm text-gray-600">
+            Îți este propus un preț de <strong>{{msg?.offer?.amount}}</strong>
+          </div>
+        }
+        @case('exchange') {
+          <span class="text-red-600 font-semibold">Propunere ofertă - schimb</span>
+          <div class="text-sm text-gray-600">
+            Ți se oferă o diferență de <strong>{{msg?.offer?.amount}}</strong> pentru schimb
+            @if(msg?.offer?.adId) {
+              <span>cu anunțul </span>
+              <a [routerLink]="['/ad', msg?.offer?.adId]" class="text-blue-500 hover:underline">
+              acesta
+            </a>
+            }
+          </div>
+
+        }
+        @case('auction') {
+          <span class="text-yellow-600 font-semibold">Licitație</span>
+          <div class="text-sm text-gray-600">
+            Suma licitată de acest utilizator este: <strong>{{msg?.offer?.amount}}</strong>
+          </div>
+        }
+      }
+
+
+    </div>
+    }
+    @if(msg?.offer && msg?.content) {
+      <hr class="my-2" />
+      <div class="text-sm text-gray-600 mt-2 italic">
+        Mesajul utilizatorului:
+      </div>
+    }
+    <div>{{ msg?.content }}</div>
+    <div class="text-xs text-right opacity-70 mt-1">
+      {{ msg?.createdAt | date: 'short' }}
+    </div>
+  </div>
+}
+</div>

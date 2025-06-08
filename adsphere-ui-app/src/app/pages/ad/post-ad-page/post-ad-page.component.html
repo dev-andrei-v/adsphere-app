@@ -1,0 +1,559 @@
+<div class="flex justify-center p-4">
+  <div class="w-full max-w-4xl p-6">
+    @if (isSentToPosting()) {
+     <app-ad-sent-message [previewAdId]="editAdId"/>
+    } @else if(isSentToUpdating()) {
+      <app-ad-sent-message
+        messageTitle="Anunț actualizat cu succes!"
+        messageSubTitle="Modificările vor fi revizuite pentru a asigura respectarea regulilor platformei."
+        [previewAdId]="editAdId"
+      />
+    } @else {
+     @if(mode == 'post') {
+       <form [formGroup]="adForm" (ngSubmit)="onSubmit()">
+         <div class="mb-15">
+           <nz-steps [nzCurrent]="currentStep">
+             <nz-step nzTitle="Informații generale"></nz-step>
+             <nz-step nzTitle="Detalii suplimentare"></nz-step>
+             <nz-step nzTitle="Date de contact"></nz-step>
+           </nz-steps>
+         </div>
+
+         <!-- Step 1: Informații generale -->
+         <ng-container *ngIf="currentStep === 0">
+           <nz-card class="mt-15">
+             <nz-form-item>
+               <nz-form-label [nzSpan]="12" nzFor="title" [nzRequired]="true">Titlu</nz-form-label>
+               <nz-form-control [nzSpan]="24"
+                                nzErrorTip="Titlul trebuie să aibă minim 20 caractere și maxim 100 caractere">
+                 <nz-input-group [nzSuffix]="suffixButton">
+                   <input nz-input id="title" formControlName="title" placeholder="Titlu"/>
+                   <ng-template #suffixButton>
+                     <button nz-button nzType="default"  nzSize="default"
+                             nzShape="circle" class="h-full w-12 flex justify-center items-center"
+                             nzTooltipTitle="Îmbunătățește cu AI titlul" nzTooltipPlacement="topLeft" nz-tooltip
+                             [disabled]="!canEnhanceTitle"
+                             (click)="enhanceTitleWithAI()">
+                       @if(!isEnhancingTitle()) {
+                         <i nz-icon nzType="bulb"></i>
+                       }
+                       @else {
+                         <!--                    show spinner-->
+                         <nz-icon nzType="loading" nzTheme="outline" class="text-lg"/>
+                       }
+                     </button>
+                   </ng-template>
+                 </nz-input-group>
+               </nz-form-control>
+             </nz-form-item>
+
+             <div class="mt-2">
+               <nz-form-item>
+                 <nz-form-label [nzSpan]="12" nzFor="category" [nzRequired]="true">Categorie</nz-form-label>
+                 <nz-form-control [nzSpan]="24"
+                                  nzErrorTip="Categoria este obligatorie">
+                   <input
+                     nz-input
+                     formControlName="category"
+                     [nzAutocomplete]="categoryAuto"
+                     (blur)="onCategoryBlur()"
+                     placeholder="Selectează o categorie"
+                   />
+                   <nz-autocomplete #categoryAuto
+                                    [compareWith]="compareCategory"
+                                    (selectionChange)="onCategorySelect($event)">
+                     <nz-auto-optgroup *ngFor="let group of categories" [nzLabel]="group.name">
+                       <nz-auto-option *ngFor="let sub of group.subcategories" [nzValue]="sub" [nzLabel]="sub.name">
+                         {{ sub.name }}
+                       </nz-auto-option>
+                     </nz-auto-optgroup>
+                   </nz-autocomplete>
+                 </nz-form-control>
+               </nz-form-item>
+             </div>
+
+             <div class="mt-2">
+               <nz-form-item>
+                 <nz-form-label [nzSpan]="24" nzFor="description" [nzRequired]="true">Descriere</nz-form-label>
+                 <nz-form-control [nzSpan]="24"
+                                  nzErrorTip="Încearcă să oferi o descriere detaliată a produsului sau serviciului tău. Trebuie să aibă minimum 100 caractere și maximum 2000 de caractere.">
+                  <textarea nz-input formControlName="description" rows="4"
+                            placeholder="Scrie o descriere detaliată"></textarea>
+                 </nz-form-control>
+                 <div class="flex justify-between items-center mt-2">
+                   <div class="flex justify-start items-center space-x-2">
+                     <span>Caractere utilizate: </span>
+                     <span [ngClass]="descriptionClassName">{{ adForm.get('description')?.value!!.trim().length || 0 }}</span>
+                   </div>
+                   <div class="flex justify-end">
+                     <button nz-button nzType="default" nzSize="default"
+                             [disabled]="!canEnhanceDescription"
+                             (click)="enhanceDescriptionWithAI()">
+                       @if(isEnhancingDescription()){
+                         Descrierea se generează <nz-icon nzType="loading" nzTheme="outline" class="text-lg"/>
+                       } @else {
+                         Îmbunătățește cu AI descrierea <i nz-icon nzType="bulb"></i>
+                       }
+                     </button>
+                   </div>
+                 </div>
+               </nz-form-item>
+             </div>
+
+             <div class="mt-5 mb-5">
+               <nz-form-item>
+                 <nz-form-label [nzRequired]="true">Tip tranzacție</nz-form-label>
+                 <nz-form-control>
+                   <nz-radio-group formControlName="transactionType">
+                     <label nz-radio *ngFor="let type of adPriceTypes" [nzValue]="type.key">
+                       <span>{{ type.label }}</span> @if (type.description) {
+                       -
+                       {{ type.description }}
+                     }
+                     </label>
+                   </nz-radio-group>
+                 </nz-form-control>
+               </nz-form-item>
+             </div>
+
+             @if(showPrice) {
+               <div class="flex items-start space-x-4">
+                 <div class="w-90">
+                   <nz-form-item>
+                     <nz-form-label nzFor="price" [nzRequired]="true">Preț</nz-form-label>
+                     <nz-form-control
+                       nzErrorTip="Introduceți un preț valid mai mare ca zero.">
+                       <input nz-input type="number" formControlName="price" placeholder="Preț"/>
+                     </nz-form-control>
+                   </nz-form-item>
+                 </div>
+
+                 <div class="ml-1 w-40">
+                   <nz-form-item>
+                     <nz-form-label nzFor="currency">Monedă</nz-form-label>
+                     <nz-form-control>
+                       <nz-select formControlName="currency">
+                         <nz-option nzValue="RON" nzLabel="RON"></nz-option>
+                         <nz-option nzValue="EURO" nzLabel="EURO"></nz-option>
+                       </nz-select>
+                     </nz-form-control>
+                   </nz-form-item>
+                 </div>
+               </div>
+             }
+
+
+           </nz-card>
+         </ng-container>
+
+         <!-- Step 2: Detalii suplimentare -->
+         <ng-container *ngIf="currentStep === 1">
+           <nz-card class="mb-4">
+             <nz-form-item>
+               <nz-form-label>Galerie</nz-form-label>
+               <nz-form-control nzExtra="Imaginile nu sunt obligatorii, dar îți fac anunțul să iasă in evidență!">
+                 <nz-upload
+                   [nzCustomRequest]="handleFile"
+                   [nzBeforeUpload]="beforeUploadFile"
+                   [(nzFileList)]="imageFileList"
+                   [nzPreview]="handlePreview"
+                   nzListType="picture-card"
+                 >
+                   <div>
+                     <nz-icon nzType="plus"/>
+                     <div style="margin-top: 8px">Adaugă <br/> imagine</div>
+                   </div>
+                 </nz-upload>
+
+                 <nz-modal
+                   [nzVisible]="previewVisible"
+                   [nzContent]="modalContent"
+                   [nzFooter]="null"
+                   (nzOnCancel)="previewVisible = false"
+                 >
+                   <ng-template #modalContent>
+                     <img [src]="previewImage" style="width: 100%" />
+                   </ng-template>
+                 </nz-modal>
+               </nz-form-control>
+             </nz-form-item>
+           </nz-card>
+
+           <nz-card class="mb-4">
+             <nz-form-label class="block text-lg font-medium mb-2">Caracteristici</nz-form-label>
+             @if(attributesForCategory?.length === 0) {
+               <p class="text-gray-500">Momentan, nu au fost găsite atribute pentru categoria selectată.</p>
+               <p class="text-gray-500">Recomandăm să ai o descriere cât mai sugestivă pentru a putea fi indexată cât mai bine în căutări.</p>
+             }
+             <div [formGroup]="attributesFormGroup">
+               @for (attr of attributesForCategory; track attr.key) {
+                 <ng-container>
+                   <nz-form-item>
+                     <nz-form-label [nzFor]="attr.key" [nzRequired]="attr.isRequired">{{ attr.label }}</nz-form-label>
+                     <nz-form-control
+                       [nzErrorTip]="attr.validation?.errorMessage"
+
+                     >
+                       <nz-input-group [nzSuffix]="attr.validation?.unit">
+                         @switch(attr.type) {
+                           @case(CategoryAttributeType.TEXT) {
+                             <input nz-input [formControlName]="attr.key" [placeholder]="attr.label"/>
+                           }
+                           @case(CategoryAttributeType.NUMBER) {
+                             <input nz-input type="number" [formControlName]="attr.key" [placeholder]="attr.label"/>
+                           }
+                           @case(CategoryAttributeType.SELECT) {
+                             <nz-select [formControlName]="attr.key">
+                               <nz-option *ngFor="let opt of attr.options" [nzValue]="opt" [nzLabel]="opt"></nz-option>
+                             </nz-select>
+                           }
+                         }
+                       </nz-input-group>
+                     </nz-form-control>
+                   </nz-form-item>
+                 </ng-container>
+               }
+             </div>
+           </nz-card>
+         </ng-container>
+
+         <!-- Step 3: Date de contact -->
+         <ng-container *ngIf="currentStep === 2">
+           <nz-card class="mb-4">
+             <nz-form-label class="block text-lg font-medium mb-2">Date de contact</nz-form-label>
+             <div class="flex flex-wrap gap-4">
+               <nz-form-item class="flex-1 min-w-[200px]">
+                 <nz-form-label nzFor="county">Județ</nz-form-label>
+                 <nz-form-control
+                   nzErrorTip="Județul este obligatoriu">
+                   <input nz-input id="county" [formControl]="countyControl" [nzAutocomplete]="countyAuto"
+                          (blur)="onCountyBlur($event)"
+                          placeholder="Județ"/>
+                   <nz-autocomplete #countyAuto (selectionChange)="onCountySelect($event)">
+                     <nz-auto-option *ngFor="let county of counties" [nzValue]="county">
+                       {{ county }}
+                     </nz-auto-option>
+                   </nz-autocomplete>
+                 </nz-form-control>
+               </nz-form-item>
+
+               <nz-form-item class="flex-1 min-w-[200px]">
+                 <nz-form-label nzFor="locality">Localitate</nz-form-label>
+                 <nz-form-control>
+                   <input
+                     nz-input
+                     formControlName="locality"
+                     [nzAutocomplete]="localityAuto"
+                     (blur)="onLocalityBlur()"
+                     placeholder="Selectează o localitate"
+                   />
+                   <nz-autocomplete #localityAuto (selectionChange)="onLocalitySelect($event)"
+                                    [compareWith]="compareLocality">
+                     <nz-auto-option *ngFor="let loc of localities" [nzValue]="loc" [nzLabel]="loc.name">
+                       {{ loc.name }}
+                     </nz-auto-option>
+                   </nz-autocomplete>
+                 </nz-form-control>
+               </nz-form-item>
+             </div>
+           </nz-card>
+         </ng-container>
+
+         <!-- Navigation buttons -->
+         <div class="flex justify-between mt-4">
+           <button nz-button type="button" (click)="prevStep()" [disabled]="currentStep === 0">
+             Înapoi
+           </button>
+           @if (currentStep < 2) {
+             <button
+               nz-button
+               nzType="primary"
+               type="button"
+               [disabled]="!isStepValid()"
+               [nz-tooltip]="!isStepValid() ? 'Completează toate câmpurile obligatorii' : null"
+               (click)="nextStep()">
+               Continuă
+             </button>
+           } @else {
+             <button nz-button nzType="primary" type="submit" [disabled]="adForm.invalid || !isStepValid()">
+               Publică anunț
+             </button>
+           }
+         </div>
+       </form>
+     } @else {
+       @if(isLoading()){
+         <div class="flex justify-center items-center min-h-[400px]">
+           <nz-spin/>
+         </div>
+       } @else {
+         <div class="mb-2">
+           <h1 class="text-2xl font-bold mb-4">Actualizează anunțul</h1>
+           <p class="text-gray-600">
+             Editează informațiile anunțului tău. După salvare, modificările vor fi revizuite pentru a asigura respectarea regulilor platformei.
+           </p>
+           <div class="flex justify-end mt-4">
+             <button nz-button nzType="link" type="submit" (click)="previewAd()">
+               Vezi pagina anunțului
+             </button>
+           </div>
+
+         </div>
+         <form [formGroup]="adForm" (ngSubmit)="onEditSubmit()">
+
+           <!-- Step 1: Informații generale -->
+           <div class="mb-4">
+             <nz-card class="mt-15">
+               <h1 class="text-xl font-bold mb-4">Informații generale</h1>
+               <nz-form-item>
+                 <nz-form-label [nzSpan]="12" nzFor="title" [nzRequired]="true">Titlu</nz-form-label>
+                 <nz-form-control [nzSpan]="24"
+                                  nzErrorTip="Titlul trebuie să aibă minim 20 caractere și maxim 100 caractere">
+                   <nz-input-group [nzSuffix]="suffixButton">
+                     <input nz-input formControlName="title" placeholder="Titlu"/>
+                     <ng-template #suffixButton>
+                       <button nz-button nzType="default"  nzSize="default"
+                               nzShape="circle" class="h-full w-12 flex justify-center items-center"
+                               nzTooltipTitle="Îmbunătățește cu AI titlul" nzTooltipPlacement="topLeft" nz-tooltip
+                               [disabled]="!canEnhanceTitle"
+                               (click)="enhanceTitleWithAI()">
+                         @if(!isEnhancingTitle()) {
+                           <i nz-icon nzType="bulb"></i>
+                         }
+                         @else {
+                           <!--                    show spinner-->
+                           <nz-icon nzType="loading" nzTheme="outline" class="text-lg"/>
+                         }
+                       </button>
+                     </ng-template>
+                   </nz-input-group>
+                 </nz-form-control>
+               </nz-form-item>
+
+               <div class="mt-2">
+                 <nz-form-item>
+                   <nz-form-label [nzSpan]="12" nzFor="category" [nzRequired]="true">Categorie</nz-form-label>
+                   <nz-form-control [nzSpan]="24"
+                                    nzErrorTip="Categoria este obligatorie">
+                     <input
+                       nz-input
+                       formControlName="category"
+                       [nzAutocomplete]="categoryAuto"
+                       (blur)="onCategoryBlur()"
+                       placeholder="Selectează o categorie"
+                     />
+                     <nz-autocomplete #categoryAuto
+                                      [compareWith]="compareCategory"
+                                      (selectionChange)="onCategorySelect($event)">
+                       <nz-auto-optgroup *ngFor="let group of categories" [nzLabel]="group.name">
+                         <nz-auto-option *ngFor="let sub of group.subcategories" [nzValue]="sub" [nzLabel]="sub.name">
+                           {{ sub.name }}
+                         </nz-auto-option>
+                       </nz-auto-optgroup>
+                     </nz-autocomplete>
+                   </nz-form-control>
+                 </nz-form-item>
+               </div>
+
+               <div class="mt-2">
+                 <nz-form-item>
+                   <nz-form-label [nzSpan]="24" nzFor="description" [nzRequired]="true">Descriere</nz-form-label>
+                   <nz-form-control [nzSpan]="24"
+                                    nzErrorTip="Încearcă să oferi o descriere detaliată a produsului sau serviciului tău. Trebuie să aibă minimum 100 caractere și maximum 2000 de caractere.">
+                  <textarea nz-input formControlName="description" rows="4"
+                            placeholder="Scrie o descriere detaliată"></textarea>
+                   </nz-form-control>
+                   <div class="flex justify-between items-center mt-2">
+                     <div class="flex justify-start items-center space-x-2">
+                       <span>Caractere utilizate: </span>
+                       <span [ngClass]="descriptionClassName">{{ adForm.get('description')?.value!!.trim().length || 0 }}</span>
+                     </div>
+                     <div class="flex justify-end">
+                       <button nz-button nzType="default" nzSize="default"
+                               [disabled]="!canEnhanceDescription"
+                               (click)="enhanceDescriptionWithAI()">
+                         @if(isEnhancingDescription()){
+                           Descrierea se generează <nz-icon nzType="loading" nzTheme="outline" class="text-lg"/>
+                         } @else {
+                           Îmbunătățește cu AI descrierea <i nz-icon nzType="bulb"></i>
+                         }
+                       </button>
+                     </div>
+                   </div>
+                 </nz-form-item>
+               </div>
+
+               <div class="mt-5 mb-5">
+                 <nz-form-item>
+                   <nz-form-label [nzRequired]="true">Tip tranzacție</nz-form-label>
+                   <nz-form-control>
+                     <nz-radio-group formControlName="transactionType">
+                       <label nz-radio *ngFor="let type of adPriceTypes" [nzValue]="type.key">
+                         <span>{{ type.label }}</span> @if (type.description) {
+                         -
+                         {{ type.description }}
+                       }
+                       </label>
+                     </nz-radio-group>
+                   </nz-form-control>
+                 </nz-form-item>
+               </div>
+
+               @if(showPrice) {
+                 <div class="flex items-start space-x-4">
+                   <div class="w-90">
+                     <nz-form-item>
+                       <nz-form-label nzFor="price" [nzRequired]="true">Preț</nz-form-label>
+                       <nz-form-control
+                         nzErrorTip="Introduceți un preț valid mai mare ca zero.">
+                         <input nz-input type="number" formControlName="price" placeholder="Preț"/>
+                       </nz-form-control>
+                     </nz-form-item>
+                   </div>
+
+                   <div class="ml-1 w-40">
+                     <nz-form-item>
+                       <nz-form-label nzFor="currency">Monedă</nz-form-label>
+                       <nz-form-control>
+                         <nz-select formControlName="currency">
+                           <nz-option nzValue="RON" nzLabel="RON"></nz-option>
+                           <nz-option nzValue="EUR" nzLabel="EUR"></nz-option>
+                         </nz-select>
+                       </nz-form-control>
+                     </nz-form-item>
+                   </div>
+                 </div>
+               }
+
+
+             </nz-card>
+           </div>
+
+           <!-- Step 2: Detalii suplimentare -->
+           <div class="mb-4">
+             <nz-card class="mb-4">
+               <h1 class="text-xl font-bold mb-4">Detalii suplimentare</h1>
+               <nz-form-item>
+                 <nz-form-label>Galerie</nz-form-label>
+                 <nz-form-control nzExtra="Imaginile nu sunt obligatorii, dar îți fac anunțul să iasă in evidență!">
+                   <nz-upload
+                     [nzCustomRequest]="handleFile"
+                     [nzBeforeUpload]="beforeUploadFile"
+                     [(nzFileList)]="imageFileList"
+                     [nzPreview]="handlePreview"
+                     nzListType="picture-card"
+                   >
+                     <div>
+                       <nz-icon nzType="plus"/>
+                       <div style="margin-top: 8px">Adaugă <br/> imagine</div>
+                     </div>
+                   </nz-upload>
+
+                   <nz-modal
+                     [nzVisible]="previewVisible"
+                     [nzContent]="modalContent"
+                     [nzFooter]="null"
+                     (nzOnCancel)="previewVisible = false"
+                   >
+                     <ng-template #modalContent>
+                       <img [src]="previewImage" style="width: 100%" />
+                     </ng-template>
+                   </nz-modal>
+                 </nz-form-control>
+               </nz-form-item>
+             </nz-card>
+           </div>
+
+           <div class="mb-4">
+             <nz-card class="mb-4">
+               <nz-form-label class="block text-lg font-medium mb-2">Caracteristici</nz-form-label>
+               @if(attributesForCategory?.length === 0) {
+                 <p class="text-gray-500">Momentan, nu au fost găsite atribute pentru categoria selectată.</p>
+                 <p class="text-gray-500">Recomandăm să ai o descriere cât mai sugestivă pentru a putea fi indexată cât mai bine în căutări.</p>
+               }
+               <div [formGroup]="attributesFormGroup">
+                 @for (attr of attributesForCategory; track attr.key) {
+                   <ng-container>
+                     <nz-form-item>
+                       <nz-form-label [nzFor]="attr.key" [nzRequired]="attr.isRequired">{{ attr.label }}</nz-form-label>
+                       <nz-form-control
+                         [nzErrorTip]="attr.validation?.errorMessage"
+
+                       >
+                         <nz-input-group [nzSuffix]="attr.validation?.unit">
+                           @switch(attr.type) {
+                             @case(CategoryAttributeType.TEXT) {
+                               <input nz-input [formControlName]="attr.key" [placeholder]="attr.label"/>
+                             }
+                             @case(CategoryAttributeType.NUMBER) {
+                               <input nz-input type="number" [formControlName]="attr.key" [placeholder]="attr.label"/>
+                             }
+                             @case(CategoryAttributeType.SELECT) {
+                               <nz-select [formControlName]="attr.key">
+                                 <nz-option *ngFor="let opt of attr.options" [nzValue]="opt" [nzLabel]="opt"></nz-option>
+                               </nz-select>
+                             }
+                           }
+                         </nz-input-group>
+                       </nz-form-control>
+                     </nz-form-item>
+                   </ng-container>
+                 }
+               </div>
+             </nz-card>
+           </div>
+
+           <!-- Step 3: Date de contact -->
+           <div class="mb-4">
+             <nz-card class="mb-4">
+               <nz-form-label class="block text-lg font-medium mb-2">Date de contact</nz-form-label>
+               <div class="flex flex-wrap gap-4">
+                 <nz-form-item class="flex-1 min-w-[200px]">
+                   <nz-form-label nzFor="county">Județ</nz-form-label>
+                   <nz-form-control
+                     nzErrorTip="Județul este obligatoriu">
+                     <input nz-input [formControl]="countyControl" [nzAutocomplete]="countyAuto"
+                            (blur)="onCountyBlur($event)"
+                            placeholder="Județ"/>
+                     <nz-autocomplete #countyAuto (selectionChange)="onCountySelect($event, 'IGNORE')">
+                       <nz-auto-option *ngFor="let county of counties" [nzValue]="county">
+                         {{ county }}
+                       </nz-auto-option>
+                     </nz-autocomplete>
+                   </nz-form-control>
+                 </nz-form-item>
+
+                 <nz-form-item class="flex-1 min-w-[200px]">
+                   <nz-form-label nzFor="locality">Localitate</nz-form-label>
+                   <nz-form-control>
+                     <input
+                       nz-input
+                       formControlName="locality"
+                       [nzAutocomplete]="localityAuto"
+                       (blur)="onLocalityBlur()"
+                       placeholder="Selectează o localitate"
+                     />
+                     <nz-autocomplete #localityAuto (selectionChange)="onLocalitySelect($event)"
+                                      [compareWith]="compareLocality">
+                       <nz-auto-option *ngFor="let loc of localities" [nzValue]="loc" [nzLabel]="loc.name">
+                         {{ loc.name }}
+                       </nz-auto-option>
+                     </nz-autocomplete>
+                   </nz-form-control>
+                 </nz-form-item>
+               </div>
+             </nz-card>
+           </div>
+
+           <div class="flex justify-end mt-4">
+             <button nz-button nzType="primary" type="submit" [disabled]="adForm.invalid && isPosting()"
+             (click)="onEditSubmit()">
+              Salvează modificări
+             </button>
+           </div>
+         </form>
+       }
+     }
+    }
+  </div>
+</div>

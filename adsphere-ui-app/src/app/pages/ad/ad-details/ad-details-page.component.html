@@ -1,0 +1,91 @@
+@if (isLoading()) {
+  <div class="container mx-auto pb-10 p-5 h-[92vh]">
+    <div class="flex flex-col justify-center items-center h-full space-y-4">
+      <span class="mb-10"><nz-spin nzSize="large"></nz-spin></span>
+    </div>
+  </div>
+} @else {
+  @if (ad?.status !== 'approved') {
+    @if (isAuthUserSeller) {
+      <div class="container mx-auto pb-10 p-5">
+        @switch (ad?.status) {
+          @case ('pending') {
+            <nz-alert
+              nzType="warning"
+              nzMessage="Anunțul tău este în curs de aprobare."
+              nzDescription="Acest anunț nu este încă public. Poți să îi faci preview aici."
+              nzShowIcon
+            ></nz-alert>
+          }
+          @case ('rejected') {
+            <nz-alert
+              nzType="error"
+              nzMessage="Anunț respins"
+              nzDescription="Anunțul a fost respins de către moderatori și nu este vizibil publicului."
+              nzShowIcon
+            ></nz-alert>
+          }
+          @case ('archived') {
+            <nz-alert
+              nzType="info"
+              nzMessage="Anunț arhivat"
+              nzDescription="Acest anunț a fost arhivat și nu mai este vizibil publicului. Îl poți reactiva din contul tău."
+              nzShowIcon
+            ></nz-alert>
+          }
+          @case ('deleted') {
+            <nz-alert
+              nzType="error"
+              nzMessage="Anunț șters"
+              nzDescription="Ai șters acest anunț. Anunțul nu mai este disponibil pe platformă."
+              nzShowIcon
+            ></nz-alert>
+          }
+        }
+      </div>
+    }
+  }
+
+  @if(ad?.status !== 'approved' && !isAuthUserSeller) {
+    <app-not-found-page/>
+  } @else {
+  <div class="container mx-auto pb-10 p-5">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 space-y-4">
+        <div>
+          <app-ad-gallery [adImages]="ad?.images"/>
+        </div>
+        <div>
+          <app-ad-description
+            [title]="ad!.title"
+            [category]="category"
+            [viewsCounterInput]="ad!.viewsCounter"
+            [createdAt]="ad!.createdAt"
+            [updatedAt]="ad!.updatedAt"
+            [description]="adDescription()"
+            [adAttributes]="ad?.attributes"
+            [categoryAttributes]="category?.attributes"/>
+        </div>
+      </div>
+      <div class="lg:col-span-1 space-y-4">
+        <div>
+          <app-ad-seller-info [seller]="seller" [adId]="ad!._id"/>
+        </div>
+        <div>
+          <app-ad-price
+            [ad]="ad"
+            [adId]="ad!._id"
+            [price]="ad!.price" [currency]="ad!.currency"
+            [transactionType]="ad!.priceType"/>
+        </div>
+        <div>
+          <app-ad-location-map [locality]="ad?.locality!!"/>
+        </div>
+
+      </div>
+    </div>
+
+    <app-related-ads [adId]="ad!._id"/>
+  </div>
+  }
+}

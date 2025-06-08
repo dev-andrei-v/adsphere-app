@@ -1,0 +1,115 @@
+<nz-modal
+  nzTitle="Contactează vânzătorul"
+  [nzCentered]="true"
+  [nzMask]="true"
+  [nzWrapClassName]="'nz-modal-blur'"
+  [nzVisible]="isVisible"
+  [nzOkDisabled]="!canSendMessage()"
+(nzOnCancel)="handleCancel()"
+(nzOnOk)="handleOk()">
+  <ng-container *nzModalContent>
+    <form [formGroup]="contactSellerForm">
+      @switch (transactionType) {
+        @case ('fixed') {
+          <strong>Prețul stabilit de vânzător este fix pentru acest anunț.</strong>
+        }
+        @case ('negotiable') {
+          <strong>Prețul stabilit de vânzător este negociabil pentru acest anunț.</strong>
+          <nz-form-item>
+            <nz-form-label nzFor="price" [nzRequired]="true">Prețul pe care ești dispus să îl oferi</nz-form-label>
+            <nz-form-control>
+              <input nz-input type="number" formControlName="priceNegotiable" placeholder="Preț"/>
+            </nz-form-control>
+          </nz-form-item>
+        }
+        @case('auction'){
+          <strong>Prețul se stabilește în urma licitației.</strong>
+          <p>Prețul minimum este de <strong>{{auctionMinPrice()}} {{currency}}</strong></p>
+          @if(auctionIncreasePercentage() !== "0.00") {
+            <p>Acesta a crescut cu <strong>{{auctionIncreasePercentage()}}%</strong> de la ultima licitație.</p>
+          }
+
+          <nz-form-item>
+            <nz-form-label nzFor="price" [nzRequired]="true">Prețul pentru licitație</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Prețul trebuie să fie mai mare decât prețul minim de licitație.">
+              <nz-input-group [nzSuffix]="pricePrefix">
+                 <input nz-input type="number" formControlName="priceAuction" placeholder="Preț"/>
+                  <ng-template #pricePrefix><span>{{currency}}</span></ng-template>
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+
+          @if(this.auctionAuthUserParticipated()){
+            <div class="mt-2">
+              <p class="text-red-800">Nu poți propune o altă ofertă deoarece ai participat deja la licitație.</p>
+            </div>
+
+          }
+        }
+        @case('free') {
+          <div>
+            <strong>Acest anunț este gratuit. Nu este necesar să oferi un preț.</strong>
+          </div>
+
+        }
+        @case('exchange') {
+          <strong>Acest anunț este pentru schimb.</strong>
+          <p>Poți selecta dacă este cazul un anunț activ din lista ta.</p>
+          <nz-form-item>
+            <nz-form-control>
+              <nz-form-label [nzSpan]="24">Selectează un anunț pentru schimb</nz-form-label>
+              <nz-select
+                formControlName="exchangeAdId"
+                nzShowSearch
+                [nzAllowClear]="true"
+                nzPlaceHolder="Alege un anunț">
+<!--                <nz-option-->
+<!--                  *ngFor="let ad of userAds"-->
+<!--                  [nzLabel]="ad.title"-->
+<!--                  [nzValue]="ad.id"-->
+<!--                ></nz-option>-->
+              <nz-option [nzLabel]="'Test'" [nzValue]="1"/>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-control>
+              <nz-form-label [nzSpan]="24">Diferență oferită (opțional)</nz-form-label>
+              <nz-input-group [nzSuffix]="pricePrefix">
+                <input
+                  formControlName="priceDifference"
+                  nz-input
+                  type="number"
+                  name="priceDifference"
+                  placeholder="De exemplu, 100 pentru a echilibra schimbul"
+                />
+              </nz-input-group>
+              <ng-template #pricePrefix><span>{{currency}}</span></ng-template>
+              <div class="text-xs text-gray-500 mt-1">
+                Pozitiv = oferi în plus • Negativ = primești diferență
+              </div>
+            </nz-form-control>
+          </nz-form-item>
+        }
+        @default {
+          <p>
+            <strong>Tipul tranzacției nu este specificat.</strong>
+          </p>
+
+        }
+      }
+      @if (transactionType !== 'auction') {
+        <nz-form-item>
+          <nz-form-label [nzSpan]="24" nzFor="description" [nzRequired]="true">Trimite un mesaj vânzătorului
+          </nz-form-label>
+          <nz-form-control>
+            <textarea nz-input formControlName="content" rows="4"
+                placeholder="Mesajul tău"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+      }
+    </form>
+  </ng-container>
+</nz-modal>

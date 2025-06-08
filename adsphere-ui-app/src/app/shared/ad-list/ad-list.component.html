@@ -1,0 +1,24 @@
+@if (isLoading) {
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-15">
+    @for (i of [].constructor(16); track $index) {
+      <app-ad-card-skeleton/>
+    }
+  </div>
+} @else {
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-15">
+    @for (ad of ads; track $index) {
+      <app-ad-card [ad]="ad"/>
+    }
+  </div>
+
+  <div class="mt-5 flex justify-center">
+    <nz-pagination
+      [nzPageIndex]="pageData?.page"
+      [nzTotal]="pageData?.total"
+      [nzPageSize]="pageData?.pageSize"
+      nzShowSizeChanger
+      (nzPageIndexChange)="handlePageIndexChange($event)"
+      (nzPageSizeChange)="handlePageSizeChange($event)"
+    />
+  </div>
+}

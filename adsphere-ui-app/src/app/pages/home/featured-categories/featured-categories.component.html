@@ -1,0 +1,14 @@
+@if(isLoading()) {
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+    @for(i of [].constructor(8); track $index) {
+      <app-category-card-skeleton/>
+    }
+  </div>
+} @else {
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+  @for(category of categories(); track category){
+    <app-category-card [category]="category"
+                      [link]="'/category/' + category.slug"></app-category-card>
+  }
+</div>
+}

@@ -1,0 +1,50 @@
+<div class="container mx-auto py-8 px-4">
+  <app-search-bar/>
+</div>
+
+<div class="container mx-auto px-4 py-6">
+  @if (!isEmpty && !isLoading()) {
+    <div class="mb-3 text-xl">
+      <span>Am găsit {{pageData().total}}
+        @if(pageData().total == 1) {
+          <span>anunț</span>
+        } @else {
+          <span>anunțuri</span>
+        }
+      </span>
+      <span> pentru căutarea </span><strong>{{ query() }}</strong>
+      @if(locationName()){
+        <span> în </span><u>{{ locationName() }}</u>
+      }
+      @if(categoryName()){
+        <span> în categoria </span><strong>{{ categoryName() }}</strong>
+      }
+    </div>
+  }
+
+  <app-ad-list
+    [ads]="ads()"
+    [pageData]="pageData()"
+    [isLoading]="isLoading()"
+    (pageChange)="handlePageChange($event)"
+    (pageSizeChange)="handlePageSizeChange($event)"
+  />
+
+  @if (isEmpty) {
+    <div class="container mx-auto py-8 px-4 h-[50vh]">
+      <div class="flex flex-col items-center justify-center mt-25">
+        <nz-result
+          nzStatus="warning"
+          nzTitle="Niciun rezultat găsit">
+          <div nz-result-subtitle>
+            Nu am găsit niciun anunț care să conțină termenul <strong>{{ query() }}</strong>
+          </div>
+          <div nz-result-extra class="flex justify-center mt-5">
+            <button nz-button nzType="primary" (click)="goBack()">Înapoi acasă</button>
+          </div>
+        </nz-result>
+      </div>
+    </div>
+  }
+
+</div>

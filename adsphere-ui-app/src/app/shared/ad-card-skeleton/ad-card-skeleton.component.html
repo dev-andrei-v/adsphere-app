@@ -1,0 +1,41 @@
+<nz-card
+  [nzHoverable]="true"
+  class="h-full hover:shadow-lg transition-shadow"
+  [nzCover]="coverTemplate"
+>
+  <ng-template #coverTemplate>
+    <nz-skeleton-element nzType="image" class="w-full h-80" [nzActive]="true"></nz-skeleton-element>
+  </ng-template>
+
+  <div class="p-4">
+    <div class="flex justify-between items-start">
+      <div class="flex-1">
+        <div class="mb-1 mt-3">
+          <nz-skeleton-element [nzActive]="true"
+            nzType="input" class="w-3/4"></nz-skeleton-element>
+        </div>
+      </div>
+
+      <!-- Heart button skeleton -->
+      <div class="ml-2 mt-2">
+        <nz-skeleton-element nzType="button" [nzShape]="'circle'" [nzSize]="'default'" [nzActive]="true"></nz-skeleton-element>
+      </div>
+    </div>
+
+    <!-- Location skeleton -->
+    <div class="flex items-center mt-5">
+      <div class="w-4 h-4 mr-3">
+        <nz-skeleton-element nzType="avatar" nzShape="circle" [nzSize]="'small'"></nz-skeleton-element>
+      </div>
+      <nz-skeleton-element nzType="input" [nzSize]="'small'" class="w-2/3"></nz-skeleton-element>
+    </div>
+
+    <!-- Time skeleton -->
+    <div class="flex items-center mt-2">
+      <div class="w-4 h-4 mr-3">
+        <nz-skeleton-element nzType="avatar" [nzShape]="'circle'" [nzSize]="'small'"></nz-skeleton-element>
+      </div>
+      <nz-skeleton-element nzType="input" [nzSize]="'small'" class="w-1/2"></nz-skeleton-element>
+    </div>
+  </div>
+</nz-card>

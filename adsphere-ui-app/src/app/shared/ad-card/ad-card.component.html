@@ -1,0 +1,39 @@
+<nz-card
+  [nzHoverable]="true"
+  class="h-full hover:shadow-lg transition-shadow cursor-pointer"
+  [nzCover]="coverTemplate"
+  [routerLink]="'/ad/' + ad?.slug"
+>
+  <ng-template #coverTemplate>
+    <img alt="ad image" [src]="featuredImage" class="w-full h-80 object-cover"/>
+  </ng-template>
+
+  <div class="p-4">
+    <div class="flex justify-between items-start">
+      <div>
+        <h3 class="font-medium text-lg mb-1 mt-3">{{ ad?.title }}</h3>
+        <p class="text-green-600 font-bold text-xl">{{ ad?.price }} {{ ad?.currency }}</p>
+      </div>
+      @if (isFavoriteEnabled) {
+        <button nz-button nzType="text" nzShape="circle" [disabled]="!isFavoriteEnabled"
+                (click)="toggleFavorite(); $event.stopPropagation()"
+        nz-tooltip [nzTooltipTitle]="isAddedToFavorite() ? 'Elimină din favorite' : 'Adaugă la favorite'"
+                [nzTooltipColor]="isAddedToFavorite() ? 'red' : 'blue'"
+                nzTooltipPlacement="bottom">
+
+          <nz-icon nzType="heart" [nzTheme]="isAddedToFavorite() ? 'twotone' : 'outline'"
+                   nzTwotoneColor="#eb322f"></nz-icon>
+        </button>
+      }
+    </div>
+
+    <div class="flex items-center text-gray-500 text-sm mt-2">
+      <nz-icon nzType="environment" nzTheme="outline" class="text-sm mr-1"></nz-icon>
+      <span>{{ ad?.locality?.county }}, {{ ad?.locality?.name }}</span>
+    </div>
+    <div class="flex items-center text-gray-500 text-sm mt-2">
+      <nz-icon nzType="clock-circle" nzTheme="outline" class="text-sm mr-1"></nz-icon>
+      <span>{{ time() }}</span>
+    </div>
+  </div>
+</nz-card>

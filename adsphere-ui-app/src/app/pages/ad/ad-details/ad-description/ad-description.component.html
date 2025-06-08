@@ -1,0 +1,51 @@
+<nz-card>
+  <div class="text-2xl font-bold" nz-card-title>{{title}}</div>
+
+  <div class="text-xl" nz-card-title>
+    <span class="text-gray-500">Din categoria: </span>
+    <a [href]="'/category/' + parentCategory()?.slug">{{parentCategory()?.name}}</a>
+    <span class="text-gray-500"> / </span>
+    <a [href]="'/category/' + parentCategory()?.slug + '?subcategory=' + category.slug">{{category.name}}</a>
+
+    <div class="flex items-center text-sm text-gray-500 mb-2 gap-x-4 mt-2">
+
+      <div class="flex items-center">
+        <nz-icon nzType="clock-circle" nzTheme="outline" class="mr-1"></nz-icon>
+        <span>Publicat pe <span class="font-bold">{{ createdAt | date: 'dd.MM.yyyy' }}</span> la <span class="font-bold">{{ createdAt | date: 'HH:mm' }}</span></span>
+      </div>
+
+      @if (updatedAt && updatedAt != "" && createdAt !== updatedAt) {
+        <div class="flex items-center">
+          <nz-icon nzType="clock-circle" nzTheme="outline" class="mr-1"></nz-icon>
+          <span>Actualizat pe <span class="font-bold">{{ updatedAt | date: 'dd.MM.yyyy' }}</span> la <span
+            class="font-bold">{{ updatedAt | date: 'HH:mm' }}</span></span>
+        </div>
+      }
+
+      <div class="flex items-center">
+        <nz-icon nzType="eye" nzTheme="outline" class="mr-1"></nz-icon>
+       @if(viewsCounter() > 1) {
+         <span class="font-semibold">{{ viewsCounter() }} vizualizări</span>
+       } @else {
+          <span class="font-semibold">{{ viewsCounter() }} vizualizare</span>
+       }
+      </div>
+
+    </div>
+
+  </div>
+  <div class="mt-2 mb-2 flex flex-wrap gap-2">
+    @for(attr of attributes(); track attr.key) {
+      <nz-tag>
+        <span class="font-medium">{{attr.label}}</span> : {{attr.value}} {{attr.unit}}
+      </nz-tag>
+    }
+  </div>
+  <nz-tabset>
+    <nz-tab nzTitle="Descriere">
+      <div class="pt-4 text-gray-800" [innerHTML]="description">
+
+      </div>
+    </nz-tab>
+  </nz-tabset>
+</nz-card>

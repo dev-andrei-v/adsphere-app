@@ -1,0 +1,226 @@
+<div class="container mx-auto px-4 py-6">
+  <!--  <div *ngIf="subcategories$ | async as category">-->
+  <div class="mb-6">
+
+  </div>
+  <nz-card>
+    @if (isLoading()) {
+      <nz-skeleton [nzActive]="true"/>
+    } @else {
+      <h2 class="text-xl font-semibold">{{ parentCategory().name }}</h2>
+
+      <!-- SEARCH -->
+      <div class="mb-3">
+        <nz-form-control>
+          <input
+            [(ngModel)]="searchQuery"
+            (keydown.enter)="handleSubmitFilters()"
+            nz-input
+            nzSize="large"
+            name="searchInput"
+            placeholder="Caută în categoria curentă..."/>
+          <i nz-icon nzType="search" nzTheme="outline"
+             class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </nz-form-control>
+      </div>
+
+      <!-- FILTRE -->
+      <form [formGroup]="filterForm" class="flex flex-col lg:flex-row lg:items-end lg:flex-wrap gap-4">
+        <!-- Subcategorie -->
+        <div class="flex flex-col w-full lg:w-60">
+          <label class="text-sm font-medium text-gray-600 mb-1">Subcategorie</label>
+          <nz-select nzPlaceHolder="Toate subcategoriile" class="w-full"
+                     formControlName="subcategoryId">
+            <nz-option nzValue="ALL" nzLabel="Toate subcategoriile"></nz-option>
+            @for (subcategory of subcategories(); track subcategory.id) {
+              <nz-option [nzValue]="subcategory.id" [nzLabel]="subcategory.name"></nz-option>
+            }
+          </nz-select>
+        </div>
+
+        <!-- Preț -->
+        <div class="flex flex-col w-full lg:w-50">
+          <label class="text-sm font-medium text-gray-600 mb-1">Preț</label>
+          <div class="flex gap-2">
+
+            <nz-input-number
+              formControlName="minPrice"
+              [nzMin]="0"
+              [nzStep]="100"
+              nzPlaceHolder="Minim"
+              [style.width.%]="100"
+            />
+
+            <nz-input-number
+              formControlName="maxPrice"
+              [nzMin]="0"
+              [nzStep]="100"
+              nzPlaceHolder="Maxim"
+              class="w-full"
+              [style.width.%]="100"
+            />
+          </div>
+        </div>
+
+        <!-- Currency -->
+        <div class="flex flex-col w-full lg:w-25">
+          <!--          <label class="text-sm font-medium text-gray-600 mb-1"></label>-->
+          <nz-select class="w-full" nzPlaceHolder="Monedă" [nzAllowClear]="true"
+                     formControlName="currency">
+            <nz-option nzValue="RON" nzLabel="lei"></nz-option>
+            <nz-option nzValue="EURO" nzLabel="€"></nz-option>
+          </nz-select>
+        </div>
+
+        <!-- Tip tranzacție -->
+        <div class="flex flex-col w-full lg:w-40">
+          <label class="text-sm font-medium text-gray-600 mb-1">Tip tranzacție</label>
+          <nz-select formControlName="priceType"
+                     nzPlaceHolder="Toate tranzacțiile" [nzAllowClear]="true" class="w-full">
+            @for(type of TRANSACTION_TYPE; track type) {
+              <nz-option [nzValue]="type.value" [nzLabel]="type.label"></nz-option>
+            }
+          </nz-select>
+        </div>
+
+        <!-- Tip cont -->
+        <div class="flex flex-col w-full lg:w-40">
+          <label class="text-sm font-medium text-gray-600 mb-1">Tip cont</label>
+          <nz-select formControlName="accountType"
+                     nzPlaceHolder="Toate tipurile" [nzAllowClear]="true" class="w-full">
+            <nz-option nzValue="USER_INDIVIDUAL" nzLabel="Persoană fizică"></nz-option>
+            <nz-option nzValue="USER_BUSINESS" nzLabel="Afacere"></nz-option>
+          </nz-select>
+        </div>
+
+        <!-- Sortare -->
+        <div class="flex flex-col w-full lg:w-45">
+          <label class="text-sm font-medium text-gray-600 mb-1">Sortează după</label>
+          <nz-select formControlName="sort"
+                     nzPlaceHolder="Implicit" [nzAllowClear]="true" class="w-full">
+            <nz-option-group nzLabel="Preț">
+              <nz-option nzValue="price_asc" nzLabel="Preț crescător"></nz-option>
+              <nz-option nzValue="price_desc" nzLabel="Preț descrescător"></nz-option>
+            </nz-option-group>
+            <nz-option-group nzLabel="Dată">
+              <nz-option nzValue="date_asc" nzLabel="Cele mai vechi"></nz-option>
+              <nz-option nzValue="date_desc" nzLabel="Cele mai noi"></nz-option>
+            </nz-option-group>
+          </nz-select>
+        </div>
+
+        <!-- Localitate -->
+        <div class="flex flex-col w-full lg:w-79">
+          <label class="text-sm font-medium text-gray-600 mb-1">Locație</label>
+            <input
+              nz-input
+              formControlName="localityId"
+              [nzAutocomplete]="locationAuto"
+              placeholder="Toate localitățile"
+              (input)="onLocalityChange($event)"
+              (blur)="onLocalityBlur($event)"
+              (selectionchange)="onLocalitySelect($event)"/>
+          <nz-autocomplete #locationAuto >
+            @if(isLocalitiesLoading()){
+              <nz-spin [nzSpinning]="true" nzSize="small" class="w-full h-full">
+                <span>Se încarcă...</span>
+              </nz-spin>
+            } @else {
+              @for(loc of suggestedLocalities(); track loc._id) {
+                <nz-auto-option [nzValue]="loc._id"  [nzLabel]="loc.county.toUpperCase() + ' | ' + loc.name">
+                  <strong>{{loc.county | uppercase}}</strong> | {{ loc.name }}
+                </nz-auto-option>
+              }
+            }
+          </nz-autocomplete>
+        </div>
+      </form>
+      @if (areSubcategoryFiltersEnabled()) {
+        <div class="mt-4">
+          <button
+            nz-button
+            nzType="dashed"
+            class="text-sm"
+            (click)="showSubcategoryFilters.set(!showSubcategoryFilters())"
+          >
+            {{ showSubcategoryFilters() ? 'Ascunde filtre avansate ▲' : 'Afișează filtre avansate ▼' }}
+          </button>
+        </div>
+
+        @if(showSubcategoryFilters()){
+          <!-- FITLRE EXTRA SUBCATEGORY -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 w-full mt-4">
+            @for (attr of attributesForSubcategory(); track attr.key) {
+              <div class="flex flex-col w-auto">
+                <label class="text-sm font-medium text-gray-600 mb-1">{{ attr.label }}</label>
+                <nz-select
+                  [(ngModel)]="attr.userValue"
+                  [nzAllowClear]="true"
+                  nzPlaceHolder="{{ attr.label }}"
+                >
+                  @for (option of attr.options; track option) {
+                    <nz-option [nzValue]="option" [nzLabel]="option"></nz-option>
+                  }
+                </nz-select>
+              </div>
+            }
+          </div>
+        }
+
+      }
+
+      @if(filterForm.invalid && (filterForm.dirty)) {
+        <div class="flex justify-between items-center">
+          <nz-alert
+            nzType="warning"
+            [nzMessage]="priceErrorMessage()"
+            nzShowIcon
+            class="w-full mt-2"/>
+        </div>
+      }
+
+        <div class="flex items-center justify-between w-full mt-2">
+          <div>
+            @if(ads().length > 0) {
+            <h2 class="text-md font-semibold mt-2">{{pageData().total}} anunțuri</h2>
+            }
+          </div>
+
+          <div class="flex gap-2">
+          <button nz-button nzType="primary" (click)="handleSubmitFilters()"
+          [disabled]="filterForm.invalid"
+          >Căutare <nz-icon nzType="search" nzTheme="outline" /></button>
+          <button nz-button nzType="default" (click)="resetFilters()">Resetează filtre</button>
+          </div>
+        </div>
+
+
+
+    }
+  </nz-card>
+
+  <app-ad-list
+    [ads]="ads()"
+    [isLoading]="isLoading()"
+    [pageData]="pageData()"
+    (pageChange)="handlePageIndexChange($event)"
+    (pageSizeChange)="handlePageSizeChange($event)"
+  />
+
+  @if (!isLoading() && ads().length === 0) {
+    <div class="container mx-auto py-8 px-4 h-[52vh]">
+      <div class="flex flex-col items-center justify-center mt-25">
+        <nz-result
+          nzStatus="info"
+          nzTitle="Niciun anunț găsit"
+          nzSubTitle="Încearcă să modifici filtrele sau caută în altă categorie.">
+          <div nz-result-extra>
+            <button nz-button nzType="primary" (click)="resetFilters()">Resetează filtrele</button>
+          </div>
+        </nz-result>
+      </div>
+    </div>
+  }
+
+
+</div>

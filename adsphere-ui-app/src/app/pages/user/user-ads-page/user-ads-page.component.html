@@ -1,0 +1,42 @@
+<div class="container mx-auto py-8 px-4">
+  <div class="text-2xl font-bold">
+    Anunțurile mele
+  </div>
+  <nz-tabset (nzSelectedIndexChange)="onTabChange($event)">
+    @for(tab of tabs; track $index){
+      <nz-tab [nzTitle]="tab.label | uppercase"/>
+    }
+  </nz-tabset>
+  @if(isLoading()){
+    @for(item of [1, 2, 3, 4, 5]; track item) {
+      <div class="mb-2">
+        <nz-card class="shadow-sm" [nzBodyStyle]="{ padding: '16px' }" [nzHoverable]="false">
+          <div class="flex items-start gap-4">
+            <!-- Imaginea -->
+            <div class="w-40 h-28 flex-shrink-0">
+              <nz-skeleton-element nzType="image" [nzActive]="true"></nz-skeleton-element>
+            </div>
+
+            <!-- Conținut -->
+            <div class="flex-1">
+              <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 3 }" [nzTitle]="false"></nz-skeleton>
+            </div>
+          </div>
+        </nz-card>
+      </div>
+    }
+  } @else {
+    @if (filteredAds.length === 0) {
+      <div class="flex justify-center">
+        <nz-result nzStatus="info" [nzTitle]="noAdsMessage"/>
+      </div>
+    } @else {
+      @for (ad of filteredAds; track ad.id) {
+        <div class="mb-2">
+          <app-user-ad-card [userAd]="ad" (onAdModified)="filterAds()"/>
+        </div>
+      }
+    }
+}
+
+</div>

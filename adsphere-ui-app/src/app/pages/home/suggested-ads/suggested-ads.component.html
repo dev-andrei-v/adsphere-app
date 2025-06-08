@@ -1,0 +1,29 @@
+ <div class="container mx-auto py-12 px-4 mb-8">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold">Anunțuri sugerate</h2>
+    </div>
+   @if(isLoading()) {
+     <div>
+       <nz-spin />
+     </div>
+
+   } @else {
+    @if (ads.length > 0) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (ad of ads; track ad._id) {
+        <app-ad-card [ad]="ad"/>
+      }
+    </div>
+    }
+    @if (ads.length === 0) {
+      <div class="text-center text-gray-500 py-8">
+        <nz-icon nzType="frown" nzTheme="outline" class="text-4xl mb-4"/>
+        <p class="text-lg font-semibold">Nicio recomandare momentan</p>
+        <p class="mt-2 text-sm text-gray-500">
+          Explorează anunțuri și salvează-le ca favorite pentru a primi sugestii personalizate.
+        </p>
+      </div>
+    }
+   }
+  </div>
+

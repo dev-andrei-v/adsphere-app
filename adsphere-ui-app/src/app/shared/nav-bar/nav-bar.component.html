@@ -1,0 +1,48 @@
+<nz-header>
+  <div class="flex items-center">
+    <div class="container mx-auto flex items-center justify-between w-full">
+      <div class="logo">
+        <a routerLink="/" class="text-2xl font-semibold text-white">AdSphere</a>
+      </div>
+
+      <span class="flex-grow"></span>
+      @if(authStore.isAuthenticated()){
+        <a nz-dropdown [nzDropdownMenu]="menu" class="mr-4">
+          <span class="text-white">
+          <nz-icon nzType="user" class="text-xl mr-1" nzTheme="outline" />
+          <span class="text-lg"> Contul meu</span>
+            <nz-icon nzType="down" class="ml-2" nzTheme="outline" />
+        </span>
+        </a>
+
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item style="cursor: auto">
+              <nz-avatar nzText="U"></nz-avatar>
+              <span class="ml-2"> {{ user?.email}}</span>
+            </li>
+            <li nz-menu-divider></li>
+            <li nz-menu-item [routerLink]="'/user/ads'">Anunțurile mele</li>
+            <li nz-menu-item [routerLink]="'/user/favorites'">Anunțurile favorite</li>
+            <li nz-menu-item [routerLink]="'/user/conversations'">Mesaje</li>
+<!--            <li nz-menu-item [routerLink]="'/user/notifications'">Notificări</li>-->
+<!--            <li nz-menu-item [routerLink]="'/user/profile'">Profil</li>-->
+            <li nz-menu-divider></li>
+            <li nz-menu-item (click)="logout()">Deconectare</li>
+          </ul>
+        </nz-dropdown-menu>
+      }
+      @else {
+        <a nz-button nzType="link" routerLink="/auth">
+        <span class="text-white">
+          <nz-icon nzType="user" class="text-xl mr-1" nzTheme="outline" />
+          <span class="text-lg"> Contul meu</span>
+        </span>
+        </a>
+      }
+
+      <button nz-button routerLink="/ad/post" nzType="dashed">Publică anunț</button>
+    </div>
+  </div>
+
+</nz-header>

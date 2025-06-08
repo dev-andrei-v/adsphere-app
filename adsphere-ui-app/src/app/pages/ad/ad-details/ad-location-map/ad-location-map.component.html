@@ -1,0 +1,57 @@
+<nz-card class="mb-6">
+  <div class="p-4">
+    <div nz-card-title class="text-lg font-bold">Locație</div>
+
+    <div class="pt-2">
+      <!-- Informație locație -->
+      <div class="flex items-center gap-2 mb-2 text-xl">
+        <nz-icon nzType="pushpin" class="text-gray-500"></nz-icon>
+        <span>{{locality?.county}}, </span>
+        <span>{{locality?.name}}</span>
+      </div>
+      <div>
+        <div class="mt-10">
+          <button nz-button nzType="dashed" nzSize="large" class="w-full"
+          (click)="showMapModal.set(true)">
+            <nz-icon nzType="environment" class="mr-1"></nz-icon>
+            Deschide harta
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</nz-card>
+
+<nz-modal
+  [(nzVisible)]="showMapModal"
+  [nzTitle]="modalTitle"
+  [nzFooter]="null"
+  [nzWidth]="800"
+  [nzBodyStyle]="{ padding: '0' }"
+  (nzOnCancel)="showMapModal.set(false)">
+
+  <div *nzModalContent class="h-100">
+    <google-map
+      height="100%"
+      width="100%"
+      [center]="center"
+      [zoom]="zoom"
+      [options]="mapOptions">
+      <map-marker
+        [position]="center"
+        [options]="markerOptions">
+      </map-marker>
+    </google-map>
+  </div>
+
+  <!-- Info locație în modal -->
+  <div class="p-4 bg-gray-50 border-t">
+    <div class="flex items-center gap-2 text-lg font-medium">
+      <nz-icon nzType="environment" class="text-blue-500"></nz-icon>
+      <span>{{locality?.name}}, județul {{locality?.county}}</span>
+    </div>
+  </div>
+</nz-modal>
+
+

@@ -1,0 +1,35 @@
+<div class="min-h-screen">
+  <div class="max-w-3xl mx-auto mt-10 px-4">
+
+    <!-- Titlu + avatar -->
+    <div class="flex items-center gap-4 mb-6">
+      <div class="rounded-full w-16 h-16 bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-700">
+        <nz-icon nzType="user" nzTheme="outline"></nz-icon>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold">Editează-ți profilul</h1>
+        <a class="text-sm text-blue-600 cursor-pointer underline">Vezi cum îți văd alții profilul</a>
+      </div>
+    </div>
+
+    <!-- Informații de bază -->
+    <nz-card class="mb-6">
+      <div class="flex justify-between items-center px-4 pt-4">
+        <div class="text-lg font-semibold">Informații de bază</div>
+        <ng-container *ngIf="!editMode()">
+          <button nz-button nzType="default" (click)="toggleEditMode()">Editează</button>
+        </ng-container>
+      </div>
+
+      <div class="p-4">
+        <ng-container *ngIf="editMode(); else viewMode">
+          <p>Edit mode</p>
+        </ng-container>
+        <ng-template #viewMode>
+          <p>View mode</p>
+        </ng-template>
+      </div>
+    </nz-card>
+
+  </div>
+</div>

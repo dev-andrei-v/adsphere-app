@@ -1,0 +1,14 @@
+<nz-card
+  [nzHoverable]="true"
+  [routerLink]="'/category/' + category.slug"
+  class="cursor-pointer text-center"
+  [ngClass]="'!p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow'">
+
+  <div
+    class="p-4 mb-5 w-32 h-32 rounded-full mx-auto flex items-center justify-center">
+<!--    <nz-icon [nzType]="icon" class="text-3xl"></nz-icon>-->
+    <img [ngSrc]="image" alt="{{ category.name }}" width="200" height="200" />
+  </div>
+
+  <span class="font-medium">{{ category.name }}</span>
+</nz-card>
