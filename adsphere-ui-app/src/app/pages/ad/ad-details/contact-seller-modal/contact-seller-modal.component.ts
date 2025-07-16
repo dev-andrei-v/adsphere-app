@@ -80,7 +80,6 @@ export class ContactSellerModalComponent implements OnInit {
             }
 
 
-            //Also ad validator to be greater than min price
             priceAuctionCtrl?.setValidators([Validators.required, Validators.min(auctionInfo.minPrice)]);
             priceAuctionCtrl?.setValue(auctionInfo.minPrice);
 

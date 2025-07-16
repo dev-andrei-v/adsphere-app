@@ -23,14 +23,13 @@ export class LogsController {
   async getLogs( @Query('page') page: number = 1,
                  @Query('pageSize') pageSize: number = 20,
                  @Query('q') query?: string) {
-    // If a query string is provided, filter logs based on it
     const logIdObject = query && query.length === 24 && /^[0-9a-fA-F]{24}$/.test(query) ? new Types.ObjectId(query) : null;
     query = query?.trim()
     const queryObject = query ? {
       $or: [
         { logType: { $regex: query, $options: 'i' } },
         { logAction: { $regex: query, $options: 'i' } },
-        { by: query }, // Assuming userId is a string
+        { by: query },
         { message: { $regex: query, $options: 'i' } },
         { _id: logIdObject }, // Allow searching by log ID
       ]

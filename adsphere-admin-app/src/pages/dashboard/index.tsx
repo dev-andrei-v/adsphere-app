@@ -77,9 +77,8 @@ export const DashboardPage = () => {
 
         const interval = setInterval(() => {
             fetchData();
-        }, 3_000); // 3 secunde
+        }, 3_000);
 
-        // curățăm intervalul când componenta se demontează
         return () => clearInterval(interval);
     }, []);
 

@@ -13,14 +13,13 @@ interface StatCardProps {
     lastWeekValue?: number;
     icon: ReactNode;
     percent?: number;
-    showSuffix?: boolean; // Dacă false, nu afișează procentul
+    showSuffix?: boolean;
 }
 
 const formatSuffix = (percent?: number) => {
     if (percent === undefined || isNaN(percent)) return "";
 
     const color = percent >= 0 ? "#3f8600" : "#cf1322";
-    // return <div style={{ color }}>{arrow} {percent.toFixed(1)}%</div>;
 };
 
 export const StatCard = ({ title, value, lastWeekValue, icon, percent, showSuffix = true }: StatCardProps) => {
@@ -78,7 +77,6 @@ interface StatCardsProps {
 
 export const StatCards = ({ data }: StatCardsProps) => {
     const statisticStyle = { background: "#fff", borderRadius: 8 };
-    //TODO
     const activeUsersTotal = data?.users?.totalCurrentWeek ?? 0;
     const activeUsersPercent = data?.users?.percentChange ?? 0;
 

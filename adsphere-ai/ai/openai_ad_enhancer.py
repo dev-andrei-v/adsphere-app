@@ -119,7 +119,6 @@ class OpenAIAdEnhancer(AdEnhancerAI):
     def guess_category_id(title: str) -> str | None:
         categories = list(db[DbCollection.CATEGORIES].find({"parentId": {"$ne": None}}))
 
-        # Construim lista de categorii pentru prompt
         categories_prompt = "\n".join([f"- {cat['name']} (ID: {cat['_id']})" for cat in categories])
 
         prompt = (

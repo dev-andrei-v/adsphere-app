@@ -63,7 +63,6 @@ export class AdDetailsPageComponent implements OnInit {
           this.seller = response.seller;
           this.category = response.category;
 
-          // If user use the ad id, replace the URL with the ad slug for better understanding and SEO
           window.history.replaceState({}, '', `/ad/${this.ad!.slug}`);
 
           this.isLoading.set(false);

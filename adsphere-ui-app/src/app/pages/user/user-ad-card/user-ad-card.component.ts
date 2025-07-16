@@ -54,18 +54,16 @@ export class UserAdCardComponent{
   }
 
   deactivateAd() {
-    // Logic to deactivate the ad
     console.log('Deactivating ad:', this.userAd.id);
     this.adService.disableAd(this.userAd._id).subscribe({
         next: (response) => {
           console.log('Ad deactivated successfully:', response);
-          this.userAd.status = 'deleted'; // Update the status locally
+          this.userAd.status = 'deleted';
           this.notificationService.warning('Anunț dezactivat', 'Anunțul a fost dezactivat cu succes.');
           this.onAdModified.emit();
         },
         error: (error) => {
           console.error('Error deactivating ad:', error);
-          // Handle error, e.g., show an error message
         }
       }
     )
@@ -83,13 +81,12 @@ export class UserAdCardComponent{
     this.adService.enableAd(this.userAd._id).subscribe({
       next: (response) => {
         console.log('Ad reactivated successfully:', response);
-        this.userAd.status = 'approved'; // Update the status locally
+        this.userAd.status = 'approved';
         this.notificationService.success('Anunț reactivat', 'Anunțul a fost reactivat cu succes.');
         this.onAdModified.emit();
         },
       error: (error) => {
         console.error('Error reactivating ad:', error);
-        // Handle error, e.g., show an error message
       }
     })
   }

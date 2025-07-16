@@ -25,7 +25,6 @@ export const dataApiProvider: DataProvider = {
             pageSize: pageSize,
         };
 
-        // Adăugăm filtrele în query string
         filters?.forEach((filter) => {
             if (filter.operator === "eq" && typeof filter.value === "string") {
                 params[filter.field] = filter.value;
@@ -42,7 +41,7 @@ export const dataApiProvider: DataProvider = {
 
         console.log(response)
         return {
-            data: response.data.data, // data este un array de obiecte
+            data: response.data.data,
             total: response.data.total
         };
     },

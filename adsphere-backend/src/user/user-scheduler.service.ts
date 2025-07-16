@@ -3,9 +3,6 @@ import { UserService } from './user.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { RegisterDto, RegisterUserTypeEnum } from '../auth/dto/register.dto';
 import { fakerRO } from '@faker-js/faker';
-/**
- * Class for simulate real time user signups
- */
 @Injectable()
 export class UserSchedulerService {
   private readonly logger = new Logger(UserSchedulerService.name);

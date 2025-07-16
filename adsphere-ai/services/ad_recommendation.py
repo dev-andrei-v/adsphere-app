@@ -23,22 +23,18 @@ class MongoEncoder(json.JSONEncoder):
         return super().default(obj)
 
 def get_user_recommendations_naive(user_id: str, limit: int = 8):
-    # 1. Colectăm favorite
     favorite_ids = [
         doc["adId"]
         for doc in db[DbCollection.FAVORITEADS].find({"userId": ObjectId(user_id)})
     ]
 
-    # 2. Colectăm ultimele 20 de vizualizări
     viewed_docs = db[DbCollection.ADVIEWS].find(
         {"userId": ObjectId(user_id)}
     ).sort("viewedAt", -1).limit(20)
     viewed_ids = [doc["adId"] for doc in viewed_docs]
 
-    # 3. Combinăm și deduplicăm ID-urile anunțurilor cu care userul a interacționat
     interacted_ids = list(set(favorite_ids + viewed_ids))
 
-    # 4. Extragem categoriile din anunțurile interacționate
     category_ids = []
     if interacted_ids:
         interacted_ads = list(db[DbCollection.ADS].find(
@@ -47,13 +43,11 @@ def get_user_recommendations_naive(user_id: str, limit: int = 8):
         ))
         category_ids = list({ad["categoryId"] for ad in interacted_ads if "categoryId" in ad})
 
-    # 5. Recomandări din aceleași categorii
     recommendation_cursor = db[DbCollection.ADS].find({
         "status": "approved",
         **({"categoryId": {"$in": category_ids}} if category_ids else {})
     }).sort("viewCount", -1)
 
-    # 6. Asigurăm unicitatea + limitarea rezultatelor
     recommendations = []
     seen_ids = set(interacted_ids)
     for ad in recommendation_cursor:
@@ -63,7 +57,6 @@ def get_user_recommendations_naive(user_id: str, limit: int = 8):
         if len(recommendations) >= limit:
             break
 
-    # 7. Fallback: dacă nu sunt suficiente, completăm cu cele mai populare anunțuri
     if len(recommendations) < limit:
         fallback_cursor = db[DbCollection.ADS].find({
             "status": "approved",
@@ -86,10 +79,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 _ads_cache = {
-    "ads": [],              # toate anunțurile aprobate
-    "texts": [],            # lista de titluri+descrieri
-    "vectorizer": None,     # instanța TfidfVectorizer
-    "tfidf_matrix": None,   # matricea TF-IDF completă
+    "ads": [],
+    "texts": [],
+    "vectorizer": None,
+    "tfidf_matrix": None,
     "timestamp": 0
 }
 
@@ -99,7 +92,6 @@ def get_cached_ads_and_vectors():
 def get_user_recommendations(user_id: str, limit: int = 4):
     user_oid = ObjectId(user_id)
 
-    # 1. ID-urile anunțurilor favorite și vizualizate
     favorite_ids = [
         doc["adId"]
         for doc in db[DbCollection.FAVORITEADS].find({"userId": user_oid})
@@ -113,7 +105,6 @@ def get_user_recommendations(user_id: str, limit: int = 4):
     if not interacted_ids:
         return []
 
-    # 2. Preluăm anunțurile interacționate din DB (pot fi puține)
     interacted_ads = list(db[DbCollection.ADS].find(
         {"_id": {"$in": interacted_ids}},
         {"title": 1, "description": 1}
@@ -127,20 +118,16 @@ def get_user_recommendations(user_id: str, limit: int = 4):
     if not interacted_texts:
         return []
 
-    # 3. Preluăm din cache toate anunțurile candidate + TF-IDF
     cached_ads, vectorizer, tfidf_matrix = get_cached_ads_and_vectors()
 
     if vectorizer is None or tfidf_matrix is None or not cached_ads:
         raise HTTPException(status_code=503, detail="Recommender cache is not ready.")
 
-    # 4. Vectorizăm textele userului (fără refit!)
     interacted_vecs = vectorizer.transform(interacted_texts)
 
-    # 5. Calculăm similarități
     similarities = cosine_similarity(interacted_vecs, tfidf_matrix)
     scores = similarities.mean(axis=0)
 
-    # 6. Sortează cele mai relevante anunțuri
     top_indices = scores.argsort()[::-1]
 
     seen_ids = set(interacted_ids)
@@ -155,7 +142,7 @@ def get_user_recommendations(user_id: str, limit: int = 4):
 
     unique_recommandations = {}
     for ad in recommendations:
-        unique_recommandations[ad["_id"]] = ad  # păstrează ultimul (sau primul)
+        unique_recommandations[ad["_id"]] = ad
 
     return json.loads(json.dumps(list(unique_recommandations.values()), cls=MongoEncoder))
 
@@ -168,19 +155,15 @@ def refresh_ads_cache():
 
     logger.info("refreshing ads cache")
 
-    # 1. Preluăm anunțurile aprobate din DB
     ads = list(db[DbCollection.ADS].find(
         {"status": "approved"},
     ))
 
-    # 2. Prelucrăm textele pentru TF-IDF
     texts = [f"{ad.get('title', '').strip()} {ad.get('description', '').strip()}" for ad in ads]
 
-    # 3. TF-IDF vectorizare
     vectorizer = TfidfVectorizer(stop_words=list(romanian_stopwords))
     tfidf_matrix = vectorizer.fit_transform(texts)
 
-    # 4. Salvăm în cache
     _ads_cache.update({
         "ads": ads,
         "texts": texts,

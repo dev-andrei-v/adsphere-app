@@ -46,7 +46,6 @@ export class SearchResultsPageComponent implements OnInit {
       this.loc.set(params['loc'] || null);
       const page = parseInt(params['page'] || '1', 10);
       if(!this.query()) {
-        // If no query is provided, redirect to home or show a message
         this.router.navigate(['/']);
       }
       this.pageData.update((p) => ({ ...p, page }));

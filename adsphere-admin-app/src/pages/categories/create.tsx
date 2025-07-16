@@ -50,8 +50,8 @@ export const CategoryCreate = () => {
 
     const { selectProps: parentCategorySelectProps } = useSelect({
         resource: "categories/featured",
-        optionLabel: "name", // sau ce ai tu în obiect
-        optionValue: "id",   // important: trebuie să fie id-ul real
+        optionLabel: "name",
+        optionValue: "id",
     });
 
     return (
@@ -72,13 +72,10 @@ export const CategoryCreate = () => {
                             listType="picture"
                             maxCount={1}
                             beforeUpload={(file) => {
-                                // Nu trimitem automat la server aici.
-                                // În schimb salvăm fișierul în state și returnăm `false` ca să nu-l urce AntD.
                                 setUploadedFile(file);
                                 return false;
                             }}
                             onRemove={() => {
-                                // dacă userul apasă “remove” pe preview, golim state-ul
                                 setUploadedFile(null);
                             }}
                         >
@@ -118,7 +115,6 @@ export const CategoryCreate = () => {
                     <Switch/>
                 </Form.Item>
 
-                {/* Atribute dinamice */}
                 <Divider>Attributes</Divider>
 
                 <Form.List name="attributes">

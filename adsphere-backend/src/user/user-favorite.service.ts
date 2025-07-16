@@ -14,14 +14,12 @@ export class UserFavoriteService {
   ) {}
 
   async addFavoriteAd(userId: string, adId: string): Promise<FavoriteAd> {
-    // Check if the favorite ad already exists
     const existingFavorite = await this.favoriteAdModel.findOne({
       userId,
       adId});
     if (existingFavorite) {
       throw new ConflictException('Ad is already in favorites');
     }
-    // Check if the ad exists
     const adExists = await this.adModel.findById(adId)
       .select('_id userId')
       .lean();
@@ -33,7 +31,6 @@ export class UserFavoriteService {
     if (isUserTryingToFavoriteOwnAd) {
       throw new ConflictException('You cannot favorite your own ad');
     }
-    // Create a new favorite ad entry
     const favoriteAd = new this.favoriteAdModel({
       userId: new Types.ObjectId(userId),
       adId: new Types.ObjectId(adId),
@@ -42,7 +39,6 @@ export class UserFavoriteService {
   }
 
   async removeFavoriteAd(userId: string, adId: string) {
-    // Find the favorite ad entry
     const favoriteAd = await this.favoriteAdModel.findOne({
       userId: new Types.ObjectId(userId),
       adId: new Types.ObjectId(adId),
@@ -50,14 +46,12 @@ export class UserFavoriteService {
     if (!favoriteAd) {
       throw new ConflictException('Ad is not in favorites');
     }
-    // Remove the favorite ad entry
     await this.favoriteAdModel.deleteOne({ _id: favoriteAd._id });
     return true
   }
 
   async getUserFavorites(userId: string) {
     const userIdObject = new Types.ObjectId(userId);
-    // Retrieve all favorite ads for the user
     const favorites = await this.favoriteAdModel
       .find({ userId: userIdObject })
       .populate({

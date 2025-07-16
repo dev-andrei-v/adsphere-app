@@ -35,13 +35,7 @@ export class AuthWrapperComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.authStore.isAuthenticated()) {
-      console.log('User is already authenticated, redirecting to home page.');
-      // Redirect to home if already authenticated
       this.router.navigate(['/']);
-    } else {
-      console.log('User is not authenticated, staying on auth page.');
-      // User is not authenticated, stay on the auth page
-      console.log(this.authStore.user())
     }
   }
 

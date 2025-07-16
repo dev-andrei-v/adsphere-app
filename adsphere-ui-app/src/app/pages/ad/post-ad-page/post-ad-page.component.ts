@@ -282,7 +282,6 @@ export class PostAdPageComponent implements OnInit {
 
     const attributes = this.adForm.value.attributes;
 
-    //Send only attributes that are not empty
     if (attributes && Object.keys(attributes).length > 0) {
       adData.attributes = Object.entries(attributes)
         .filter(([key, value]) => value !== null && value !== '')
@@ -484,16 +483,12 @@ export class PostAdPageComponent implements OnInit {
   handleFile = (item: NzUploadXHRArgs): Subscription => {
     const file = item.file as any;
 
-    // Dacă vrei doar să-l păstrezi în fileList (fără upload)
-    //this.fileList = [...this.fileList, item.file];
     this.imageFileList = [...this.imageFileList, item.file];
 
-    // Poți simula un upload "reușit":
     setTimeout(() => {
       item.onSuccess?.({}, item.file, event);
     }, 100);
 
-    // Trebuie să returnezi un Subscription valid
     return new Subscription();
   };
 
@@ -514,7 +509,6 @@ export class PostAdPageComponent implements OnInit {
     this.isEnhancingTitle.set(true);
     const title = this.adForm.get('title')?.value;
     const extraDescription = this.adForm.get('description')?.value;
-    //Disable the title control to prevent user from changing it while AI is enhancing
     this.adForm.get('title')?.disable();
     this.adService.enhanceAdTitle(title, extraDescription).subscribe({
       next: (response) => {
@@ -535,7 +529,6 @@ export class PostAdPageComponent implements OnInit {
     this.isEnhancingDescription.set(true);
     const description = this.adForm.get('description')?.value;
     const extraTitle = this.adForm.get('title')?.value;
-    //Disable the description control to prevent user from changing it while AI is enhancing
     this.adForm.get('description')?.disable();
     this.adService.enhanceAdDescription(description, extraTitle).subscribe({
       next: (response) => {
@@ -613,7 +606,6 @@ export class PostAdPageComponent implements OnInit {
     }
     const attributes = this.adForm.value.attributes;
 
-    //Send only attributes that are not empty
     if (attributes && Object.keys(attributes).length > 0) {
       adData.attributes = Object.entries(attributes)
         .filter(([key, value]) => value !== null && value !== '')

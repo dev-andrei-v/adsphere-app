@@ -21,8 +21,6 @@ export class AdAdminService {
   ) {}
 
   async getAds(page = 1, limit = 20, queryStr?: string) {
-    //Make a query object based on the query string
-    //Search OR by id, title, slug
     const objectId = queryStr && Types.ObjectId.isValid(queryStr) ? new Types.ObjectId(queryStr) : null;
     const query = queryStr ? {
       $or: [
@@ -44,7 +42,6 @@ export class AdAdminService {
   }
 
   async updateAd(id: string, updateAdDto: UpdateAdDto, adminUser: AuthUserDto) {
-    // Check if the ad exists
     const ad = await this.adModel.findById(id);
     if (!ad) {
       throw new NotFoundException(`Ad with id ${id} not found`);
@@ -56,8 +53,6 @@ export class AdAdminService {
     const msgStatusChanged = `Status changed from ${copyAd.status.toUpperCase()} to ${ad.status.toUpperCase()}`;
 
     if(ad.status == AdStatus.PENDING) {
-      //Resend the ad to the processing queue
-      //For example, if the ad was approved and then set to pending again
       await this.rabbitMqService.publish(RabbitMqPattern.AD_PROCESS, {
         adId: ad.id.toString(),
         date: ad.createdAt.toISOString(),
@@ -70,9 +65,7 @@ export class AdAdminService {
       message: `Ad ${ad._id} updated by admin ${adminUser.email} ${statusChanged ? ' | ' + msgStatusChanged : ''}`,
       adId: ad._id,
     })
-    // Save the log entry
     await log.save();
-    // Update the ad
 
     await ad.save();
     return ad;

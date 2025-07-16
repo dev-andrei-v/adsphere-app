@@ -23,7 +23,7 @@ export class AdSearchService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    // await this.syncMissingAdsToElastic(); // rulează imediat
+    // await this.syncMissingAdsToElastic();
   }
 
   public async indexAd(ad: Ad) {
@@ -121,7 +121,7 @@ export class AdSearchService implements OnModuleInit {
         _id: { $in: ids },
         status: AdStatus.APPROVED,
       })
-      .sort({ updatedAt: -1 }) // sort by updatedAt to get the most recent ads first
+      .sort({ updatedAt: -1 })
       .lean();
 
     const otherAdsCountByNotApproved = await this.adModel.countDocuments({
@@ -131,8 +131,6 @@ export class AdSearchService implements OnModuleInit {
 
     total -= otherAdsCountByNotApproved;
 
-    // If userId is provided, check for each ad if it is favorited by the user
-    // console.log(`Ads: ${ads.length}, UserId: ${userId}`);
     if (userId) {
       const favoriteAds = await this.favoriteAdModel.find({userId: new Types.ObjectId(userId), adId: { $in: ids } }).lean();
       const favoriteAdIds = new Set(favoriteAds.map(fav => fav.adId.toString()));

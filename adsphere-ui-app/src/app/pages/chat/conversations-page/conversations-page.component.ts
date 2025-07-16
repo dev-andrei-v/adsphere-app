@@ -99,8 +99,6 @@ export class ConversationsPageComponent implements OnInit {
         .subscribe(newMessage => {
           if (newMessage) {
             console.log("New message received:", newMessage);
-            // // Adaugă mesajul nou la listă (depinde cum ții lista de mesaje, Signals, BehaviorSubject etc.)
-            // this.messages.update(msgs => [...msgs, newMessage]);
             this.scrollToBottom();
           }
         });
@@ -129,7 +127,6 @@ export class ConversationsPageComponent implements OnInit {
 
     if(selectedConv == null) return;
 
-    //Determinate receiverId
     const receiverId = selectedConv.sellerId === this.authStore.user()?.id
       ? selectedConv.buyerId
       : selectedConv.sellerId;

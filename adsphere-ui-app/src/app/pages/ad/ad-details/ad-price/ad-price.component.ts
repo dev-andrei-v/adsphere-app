@@ -98,7 +98,6 @@ export class AdPriceComponent implements OnInit {
 
   handleModalSubmit() {
     this.showModal.set(false);
-    // Navigate user to chat page
     this.router.navigate(['/user/conversations'], { queryParams: { id: this.adId } });
   }
 

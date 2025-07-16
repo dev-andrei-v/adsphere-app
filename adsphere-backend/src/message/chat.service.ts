@@ -21,14 +21,12 @@ export class ChatService {
 
   }
   async post(input: CreateMessageInput): Promise<boolean> {
-    //check if ad exists
     const ad = await this.adModel.findOne({ _id: input.adId })
       .select("_id userId");
      if(!ad) {
         return false;
      }
-     const sellerId = ad.userId; // Assuming the ad's userId is the seller
-    // Check if the sender is the seller or buyer
+     const sellerId = ad.userId;
     const senderObjectId = new mongoose.Types.ObjectId(input.senderId);
     const receiverObjectId = new mongoose.Types.ObjectId(input.receiverId);
 
@@ -209,33 +207,27 @@ export class ChatService {
   }
 
 
-  // This is used for contacting the seller of an ad
-  // Also this initiates a conversation if it doesn't exist
   async contactSellerWithOffer(input: ContactAdInput): Promise<boolean> {
     this.logger.log("Received contact seller request with input:", input);
-    // Check if ad exists
     const ad = await this.adModel.findOne({ _id: input.adId }).lean()
     if (!ad) {
       this.logger.error(`Ad with ID ${input.adId} not found.`);
       return false;
     }
-    // Check if user already has an ongoing conversation with the seller
     const existingConversation = await this.messageModel.findOne({
       adId: input.adId,
       senderId: input.senderId,
-      receiverId: ad.userId, // Assuming the ad's userId is the seller
+      receiverId: ad.userId,
     });
     if (existingConversation) {
       this.logger.log(`Existing conversation found for ad ${input.adId} between sender ${input.senderId} and receiver ${ad.userId}.`);
-      // You can update the existing conversation or return early
       return false;
     }
     this.logger.log(`No existing conversation found for ad ${input.adId}. Creating a new message.`);
-    // If no conversation exists, create a new message
     const message = new this.messageModel({
       adId: input.adId,
       senderId: input.senderId,
-      receiverId: ad?.userId, // Assuming the ad's userId is the seller
+      receiverId: ad?.userId,
       content: input.content,
       offer: input.offer,
     });

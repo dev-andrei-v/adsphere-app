@@ -38,7 +38,6 @@ export class UserController {
   @Get('me/profile')
   @UseGuards(JwtAuthGuard, RolesGuard)
   async getUserProfile(@CurrentUser() user: AuthUserDto) {
-    //TODO
     return {
       data: ["TODO", user]
     };

@@ -142,11 +142,9 @@ export class SearchBarComponent implements OnInit {
     let county = '';
     let name = '';
 
-    // Verifică dacă există separatorul ' | '
     if (value.includes(' | ')) {
       [county, name] = value.split(' | ');
 
-      // Verifică dacă county și name sunt definite
       if (county && name) {
         county = county[0]?.toUpperCase() + county.slice(1).toLowerCase();
       } else {
@@ -155,7 +153,6 @@ export class SearchBarComponent implements OnInit {
       }
     }
 
-    // Caută localitatea doar dacă ambele sunt definite
     if (county && name) {
       const selectedLocality = this.suggestedLocalities().find(
         locality => locality.name === name && locality.county === county

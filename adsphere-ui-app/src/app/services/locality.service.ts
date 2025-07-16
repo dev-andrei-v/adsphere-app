@@ -29,7 +29,7 @@ export class LocalityService {
 
   getAutocomplete(query: string): Observable<Locality[]> {
     if(!query || query.length < 3) {
-      return of([]); // Return empty array after a delay
+      return of([]);
     }
     return this.httpClient.get<{ data: Locality[] }>(`${AppConstants.API_URL}/localities/autocomplete?query=${query}`)
       .pipe(

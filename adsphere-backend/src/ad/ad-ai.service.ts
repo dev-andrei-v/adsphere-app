@@ -19,7 +19,7 @@ export class AdAIService {
     try {
       const response = await firstValueFrom(this.http.post(URL, { title, description }));
       this.logger.log(`[AI] Got response: ${JSON.stringify(response.data)}`);
-      return response.data;  // Sau întregul obiect dacă vrei tot
+      return response.data;
     } catch (error) {
       this.logger.error(`[AI] Error from Python service`, error?.response?.data || error.message);
       throw error;
@@ -32,7 +32,7 @@ export class AdAIService {
     return firstValueFrom(this.http.post(URL, { title, description }))
       .then(response => {
         this.logger.log(`[AI] Got response: ${JSON.stringify(response.data)}`);
-        return response.data;  // Sau întregul obiect dacă vrei tot
+        return response.data;
       })
       .catch(error => {
         this.logger.error(`[AI] Error from Python service`, error?.response?.data || error.message);
@@ -66,7 +66,7 @@ export class AdAIService {
     try {
       const response = await firstValueFrom(this.http.get(URL));
       this.logger.log(`[AI] Got response: ${JSON.stringify(response.data)}`);
-      return response.data;  // Sau întregul obiect dacă vrei tot
+      return response.data;
     } catch (error) {
       this.logger.error(`[AI] Error from Python service`, error?.response?.data || error.message);
       return []

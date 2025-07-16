@@ -74,7 +74,7 @@ export class AdService {
 
     this.checkAttributesForCreate(createAdDto, category);
 
-    let ad; // <-- comun pentru ambele ramuri
+    let ad;
     if (adId) {
       const existingAd = await this.adModel.findById(adId);
       if (!existingAd) {
@@ -121,16 +121,13 @@ export class AdService {
       await ad.save();
     }
 
-    // Emit an event to the queue for further processing
     await this.rabbitMqService.publish(RabbitMqPattern.AD_PROCESS, {
       adId: ad.id.toString(),
       date: ad.createdAt.toISOString(),
     });
 
-    // Index the ad in Elasticsearch
     await this.adSearchService.indexAd(ad);
 
-    // Log the ad creation
     if (!adId) {
       await new this.logModel({
         logType: LogType.ACTION,
@@ -162,7 +159,6 @@ export class AdService {
     if (!uploadedImage) {
       throw new BadRequestException('Image upload failed');
     }
-    //First image is featured by default
     const isFirstImage = ad.images.length === 0;
     if (uploadedImage.secureUrl != null && uploadedImage.publicId != null) {
       ad.images.push({
@@ -182,7 +178,6 @@ export class AdService {
     }
   }
   private checkAttributesForCreate(dto: CreateAdDto, category: any) {
-    //each dto should have at least one attribute
     if (!dto.attributes || Object.keys(dto.attributes).length === 0) {
       // throw new BadRequestException(`Ad should have at least one attribute`);
     }
@@ -192,7 +187,6 @@ export class AdService {
     }
 
     for (const [key, value] of Object.entries(dto.attributes)) {
-      //check if the key exists in the category attributes map
       if (!categoryAttributesMap.has(key)) {
         throw new BadRequestException(
           `Attribute ${key} does not exist in category ${category.name}`,
@@ -202,7 +196,6 @@ export class AdService {
       const attributeTemplate = categoryAttributesMap.get(key);
       switch (attributeTemplate.type) {
         case 'text':
-          //validate regex
           if (typeof value !== 'string') {
             throw new BadRequestException(
               `Attribute "${key}" with value "${value}" is not a string in category "${category.name}"`,
@@ -222,13 +215,11 @@ export class AdService {
           break;
         case 'number':
           const numberValue = +value;
-          //check if the value is a number
           if (isNaN(numberValue)) {
             throw new BadRequestException(
               `Attribute "${key}" with value "${value}" is not a number in category ${category.name}`,
             );
           }
-          //check if the value is in the range
           if (
             attributeTemplate.validation &&
             attributeTemplate.validation.minValue &&
@@ -249,7 +240,6 @@ export class AdService {
           }
           break;
         case 'select':
-          //if select, the value should be in the options array
           if (!attributeTemplate.options.includes(value)) {
             throw new BadRequestException(
               `Attribute "${key}" with value "${value}" does not exist in category ${category.name}`,
@@ -301,20 +291,20 @@ export class AdService {
       { $match: { status: AdStatus.APPROVED } },
       {
         $sort: {
-          updatedAt: -1 // sortăm descrescător după updatedAt pentru fiecare titlu
+          updatedAt: -1
         }
       },
       {
         $group: {
           _id: '$title',
-          doc: { $first: '$$ROOT' } // păstrăm cel mai recent document pentru titlul respectiv
+          doc: { $first: '$$ROOT' }
         }
       },
       {
         $replaceWith: '$doc'
       },
       {
-        $sort: { updatedAt: -1 } // sortăm din nou după updatedAt între titlurile unice
+        $sort: { updatedAt: -1 }
       },
       {
         $project: {
@@ -434,7 +424,6 @@ export class AdService {
                 },
               },
             ],
-            // filter: [], poți adăuga extra filters dacă indexezi și subcategoryId, etc.
           },
         };
         const result = await this.elastic.search({
@@ -545,15 +534,13 @@ export class AdService {
     const adView = new this.adViewModel({
       adId: adIdObject,
       userId: userId ? new Types.ObjectId(userId) : undefined,
-      deviceId: userId ? undefined : 'guest', // you can use a real device ID or IP if available
+      deviceId: userId ? undefined : 'guest',
       viewedAt: new Date(),
     });
 
     await adView.save();
-    // Increment the views counter in the ad document
     ad.viewsCounter = (ad.viewsCounter || 0) + 1;
     await ad.save();
-    // Optionally, you can also log this view in a separate collection if needed
     this.logger.log(`Ad view tracked for adId: ${adId}, userId: ${userId}`);
     return true;
   }
@@ -565,7 +552,6 @@ export class AdService {
       throw new NotFoundException(`Ad with id ${adId} not found`);
     }
 
-    //check if publisher is the same as ad userId
     if(ad.userId.toString() != userId) {
       throw new UnauthorizedException('You are not allowed to view this ad');
     }

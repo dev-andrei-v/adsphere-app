@@ -167,7 +167,6 @@ export class CategoryPageComponent implements OnInit {
     this.parentSlug = this.route.snapshot.paramMap.get('slug');
     this.childrenSlug = this.route.snapshot.queryParamMap.get('subcategory');
 
-    // Setează pagina dacă e transmisă în query params
     const pageIndex = this.route.snapshot.queryParamMap.get('page');
     if (pageIndex) {
       const page = parseInt(pageIndex, 10);
@@ -243,7 +242,6 @@ export class CategoryPageComponent implements OnInit {
 
   handlePageIndexChange($event: number) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Set page to url route
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page: $event },
@@ -295,7 +293,6 @@ export class CategoryPageComponent implements OnInit {
       localityId: null
     });
     this.searchQuery.set('')
-    // Load again with default filters
     this.isLoading.set(true);
     this.categoryService.getAdsByCategorySlug(this.parentSlug!!, this.pageData().page, this.pageData().pageSize)
       .pipe(
@@ -323,9 +320,7 @@ export class CategoryPageComponent implements OnInit {
     if(subcategoryId === 'ALL') {
       return;
     }
-    // Load dynamic attributes
     const selectedSubcategory = this.subcategories().find(cat => cat.id === subcategoryId);
-    // Update subcategory slug in the URL without reloading the page
     if(selectedSubcategory) {
       this.router.navigate([], {
         relativeTo: this.route,
@@ -334,7 +329,6 @@ export class CategoryPageComponent implements OnInit {
         replaceUrl: true
       });
     } else {
-      // If no subcategory is found, reset the slug
       this.router.navigate([], {
         relativeTo: this.route,
         queryParams: {subcategory: null},
@@ -359,7 +353,6 @@ export class CategoryPageComponent implements OnInit {
 
   handleSubmitFilters() {
     this.isLoading.set(true);
-    //Reset page to 1
     const pageData = this.pageData()
     pageData.page = 1; // Reset to first page on filter submit
     this.pageData.set(pageData);
@@ -407,7 +400,6 @@ export class CategoryPageComponent implements OnInit {
       filtersPayload.subcategoryId = null; // Ensure we send null if ALL is selected
     }
 
-    // Remove empty values
     for(const key in filtersPayload) {
       if(filtersPayload[key] === null || filtersPayload[key] === '') {
         delete filtersPayload[key];
@@ -454,7 +446,6 @@ export class CategoryPageComponent implements OnInit {
       const maxPrice = group.get('maxPrice')?.value;
       const currency = group.get('currency')?.value;
 
-      // Verifică explicit dacă field-urile sunt completate (0 e valid)
       const isSet = (val: any) => val !== null && val !== undefined && val !== '';
 
       const anyFilled = isSet(minPrice) || isSet(maxPrice) || isSet(currency);

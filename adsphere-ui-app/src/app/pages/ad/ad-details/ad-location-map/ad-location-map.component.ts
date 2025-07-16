@@ -31,7 +31,7 @@ export class AdLocationMapComponent implements OnInit {
   showMapModal = signal<boolean>(false);
 
   center: google.maps.LatLngLiteral = { lat: 45.9, lng: 24.8 };
-  zoom = 12; // Zoom mai mare pentru o locație specifică
+  zoom = 12;
   markers: google.maps.LatLngLiteral[] = [];
 
   mapOptions: google.maps.MapOptions = {
@@ -55,20 +55,16 @@ export class AdLocationMapComponent implements OnInit {
 
     console.log("locality", this.locality);
 
-    // IMPORTANT: Coordonatele erau inversate!
-    // Pentru România: latitude = ~45-47, longitude = ~20-29
     this.center = {
-      lat: this.locality.longitude, // Folosește longitude pentru lat
-      lng: this.locality.latitude   // Folosește latitude pentru lng
+      lat: this.locality.longitude,
+      lng: this.locality.latitude
     };
 
-    // Adaugă markerul pentru locația exactă
     this.markers = [{
       lat: this.locality.longitude,
       lng: this.locality.latitude
     }];
 
-    // Zoom mai mare pentru o locație specifică
     this.zoom = 12;
   }
 
